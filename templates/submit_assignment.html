@@ -1,0 +1,194 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Assignment</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #eef3fc;
+            min-height: 100vh;
+            padding: 30px 15px;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px #d1ddef;
+        }
+
+        .header {
+            background: #103c78;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 25px;
+            margin-bottom: 8px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #17345d;
+        }
+
+        select, input[type="file"] {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #cbd8eb;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            background: #f9fbff;
+        }
+
+        .upload-box {
+            background: #f1f6ff;
+            border: 2px dashed #4788df;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        button {
+            width: 100%;
+            background: #0866df;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #064eaa;
+        }
+
+        .back {
+            display: block;
+            text-align: center;
+            margin-top: 22px;
+            color: #075dc4;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .note {
+            color: #657895;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+
+        .flash {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 18px;
+            background: #fff1f0;
+            color: #a12b25;
+        }
+
+        .success {
+            background: #e7f8ed;
+            color: #176b35;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>📄 Submit Assignment</h1>
+        <p>Smart Document Detector - Student Portal</p>
+    </div>
+
+    <div class="content">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="flash {{ 'success' if category == 'success' else '' }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endwith %}
+
+        <form method="POST"
+              action="{{ url_for('submit_assignment') }}"
+              enctype="multipart/form-data">
+
+            <label>Select Assignment</label>
+
+            <select name="assignment_id" required>
+
+                <option value="">-- Choose Assignment --</option>
+
+                {% for assignment in assignments %}
+
+                    <option value="{{ assignment.id }}"
+                        {% if selected_assignment_id == assignment.id %}selected{% endif %}>
+                        {{ assignment.title }}
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+            <label>Upload PDF Document</label>
+
+            <div class="upload-box">
+
+                <h2>☁️ Choose Your PDF</h2>
+                <br>
+
+                <input
+                    type="file"
+                    name="file"
+                    accept=".pdf,application/pdf"
+                    required
+                >
+
+                <p class="note">
+                    Only PDF files are allowed. Maximum size: 10 MB.
+                </p>
+
+            </div>
+
+            <button type="submit">
+                Submit Assignment
+            </button>
+
+        </form>
+
+        <a class="back" href="{{ url_for('student_dashboard') }}">
+            ← Back to Student Dashboard
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+</html>

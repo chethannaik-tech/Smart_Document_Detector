@@ -1,0 +1,116 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Document Detector</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f1f5fb;
+            text-align: center;
+        }
+
+        header {
+            background: #173b72;
+            color: white;
+            padding: 25px;
+        }
+
+        .container {
+            margin: 70px auto;
+            max-width: 750px;
+            padding: 20px;
+        }
+
+        .portals {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+
+        .portal {
+            background: white;
+            width: 260px;
+            padding: 30px 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px #0002;
+        }
+
+        .portal h2 {
+            color: #173b72;
+        }
+
+        .portal p {
+            color: #666;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #1769d2;
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 6px;
+            margin-top: 15px;
+        }
+
+        .student {
+            background: #15966b;
+        }
+
+        footer {
+            margin-top: 60px;
+            color: #777;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Smart Document Detector</h1>
+    <p>Assignment Management and Document Similarity System</p>
+</header>
+
+<div class="container">
+
+    <h2>Welcome to Smart Document Detector</h2>
+    <p>Please select your portal to continue.</p>
+
+    <div class="portals">
+
+        <div class="portal">
+            <h2>Teacher Portal</h2>
+            <p>Manage assignments and view registered students.</p>
+            <a href="{{ url_for('teacher_login') }}" class="btn">
+                Teacher Login
+            </a>
+        </div>
+
+        <div class="portal">
+            <h2>Student Portal</h2>
+            <p>Access your student account and dashboard.</p>
+            <a href="{{ url_for('student_login') }}" class="btn student">
+                Student Login
+            </a>
+            <br>
+            <a href="{{ url_for('register_student') }}">
+                New Student? Register Here
+            </a>
+        </div>
+
+    </div>
+
+</div>
+
+<footer>
+    <p>Smart Document Detector Project</p>
+</footer>
+
+</body>
+</html>

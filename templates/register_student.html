@@ -1,0 +1,120 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #eef7f3;
+        }
+
+        .register-box {
+            width: 420px;
+            max-width: calc(100% - 40px);
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px #0002;
+        }
+
+        h2 {
+            text-align: center;
+            color: #15966b;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-top: 7px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            margin-top: 25px;
+            background: #15966b;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .message {
+            text-align: center;
+            color: #c62828;
+        }
+
+        .links {
+            text-align: center;
+            margin-top: 20px;
+            line-height: 2;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="register-box">
+
+    <h2>Student Registration</h2>
+    <p style="text-align:center;">
+        Create your Student Account
+    </p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <p class="message">{{ message }}</p>
+        {% endfor %}
+    {% endwith %}
+
+    <form method="POST">
+
+        <label>Student Name</label>
+        <input type="text" name="name" required>
+
+        <label>Register Number</label>
+        <input type="text" name="register_number" required>
+
+        <label>Department</label>
+        <input type="text" name="department" required>
+
+        <label>Create Password</label>
+        <input type="password" name="password"
+               minlength="8" required>
+
+        <label>Confirm Password</label>
+        <input type="password" name="confirm_password"
+               minlength="8" required>
+
+        <button type="submit">Register</button>
+
+    </form>
+
+    <div class="links">
+        <a href="{{ url_for('student_login') }}">
+            Already registered? Student Login
+        </a>
+        <br>
+        <a href="{{ url_for('home') }}">Back to Home</a>
+    </div>
+
+</div>
+
+</body>
+</html>

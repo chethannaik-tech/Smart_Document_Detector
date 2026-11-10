@@ -1,0 +1,104 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registered Students</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<header class="topbar">
+    <div class="brand">
+        <div class="logo">SD</div>
+        <div>
+            <h2>SMART DOCUMENT DETECTOR</h2>
+            <p>Student Management Portal</p>
+        </div>
+    </div>
+    <div class="teacher">Teacher Portal</div>
+</header>
+
+<div class="layout">
+
+    <aside class="sidebar">
+        <a href="/">▦ DASHBOARD</a>
+        <a href="/create-assignment">＋ CREATE ASSIGNMENT</a>
+        <a href="/register-student">＋ REGISTER STUDENT</a>
+        <a class="active" href="/students">▤ VIEW STUDENTS</a>
+    </aside>
+
+    <main class="content">
+
+        <section class="welcome">
+            <div>
+                <h1>Registered Students</h1>
+                <p>View all registered student details.</p>
+            </div>
+            <div class="welcome-icon">👨‍🎓</div>
+        </section>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="message {{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endwith %}
+
+        <div class="panel" id="students">
+
+            <h2>📋 Student List</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Student Name</th>
+                        <th>Register Number</th>
+                        <th>Department</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for student in students %}
+                    <tr>
+                        <td>{{ student.id }}</td>
+                        <td>{{ student.name }}</td>
+                        <td>{{ student.register_number }}</td>
+                        <td>{{ student.department }}</td>
+                    </tr>
+
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="empty">
+                            No students registered yet.
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>
+
+            <br>
+
+            <a href="/register-student" class="action blue-btn">
+                + Register New Student
+            </a>
+
+            <a href="/" class="action green-btn">
+                Back to Dashboard
+            </a>
+
+        </div>
+
+    </main>
+
+</div>
+
+</body>
+</html>

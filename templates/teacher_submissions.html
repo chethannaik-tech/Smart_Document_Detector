@@ -1,0 +1,233 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Submissions</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f2f5fa;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .header {
+            background: #103c78;
+            color: white;
+            padding: 22px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+
+        .header h2 {
+            margin-bottom: 8px;
+        }
+
+        .back {
+            display: inline-block;
+            background: #103c78;
+            color: white;
+            padding: 11px 18px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .table-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 850px;
+        }
+
+        th, td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #eaf1fb;
+            color: #103c78;
+        }
+
+        .download {
+            display: inline-block;
+            background: #103c78;
+            color: white;
+            padding: 8px 12px;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .allow {
+            background: #16834a;
+            color: white;
+            border: none;
+            padding: 9px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .allowed {
+            color: #16834a;
+            font-weight: bold;
+        }
+
+        .submitted {
+            color: #103c78;
+            font-weight: bold;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 30px;
+            color: #777;
+        }
+
+        .flash {
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            background: #e5f5e9;
+            color: #176b35;
+        }
+
+        @media(max-width: 600px) {
+            body {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h2>Student Submissions</h2>
+        <p>View, download and manage student assignment PDFs.</p>
+    </div>
+
+    <a href="{{ url_for('teacher_dashboard') }}" class="back">
+        Back to Dashboard
+    </a>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="flash">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    <div class="table-box">
+
+        <h3 style="margin-bottom: 20px;">All Submitted Assignments</h3>
+
+        {% if submissions %}
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th>Register Number</th>
+                    <th>Assignment</th>
+                    <th>PDF File</th>
+                    <th>Submitted At</th>
+                    <th>Download</th>
+                    <th>Permission</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for submission in submissions %}
+
+                <tr>
+
+                    <td>{{ submission.student_name }}</td>
+
+                    <td>{{ submission.register_number }}</td>
+
+                    <td>{{ submission.assignment_title }}</td>
+
+                    <td>
+                        {{ submission.original_name or "assignment.pdf" }}
+                    </td>
+
+                    <td>{{ submission.submitted_at or "N/A" }}</td>
+
+                    <td>
+                        <a
+                            href="{{ url_for('download_submission', submission_id=submission.id) }}"
+                            class="download">
+                            Download PDF
+                        </a>
+                    </td>
+
+                    <td>
+
+                        {% if submission.resubmission_allowed %}
+
+                            <span class="allowed">
+                                Permission Granted
+                            </span>
+
+                        {% else %}
+
+                            <form
+                                method="POST"
+                                action="{{ url_for('teacher_allow_resubmission', submission_id=submission.id) }}">
+
+                                <button type="submit" class="allow">
+                                    Allow Resubmission
+                                </button>
+
+                            </form>
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+        </table>
+
+        {% else %}
+
+            <div class="empty">
+                <h3>No submissions available</h3>
+                <p>Student submissions will appear here.</p>
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+</body>
+</html>

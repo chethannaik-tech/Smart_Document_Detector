@@ -1,0 +1,376 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Document Detector Dashboard</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        .teacher {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .logout-btn {
+            background: #ffffff;
+            color: #173b72;
+            padding: 10px 18px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .logout-btn:hover {
+            background: #e8eef8;
+        }
+
+        .similarity-btn {
+            background: #1769d2;
+            color: white;
+            border: none;
+            padding: 9px 13px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            display: inline-block;
+            margin: 3px;
+        }
+
+        .similarity-btn:hover {
+            background: #104d9e;
+        }
+
+        .report-btn {
+            background: #198754;
+            color: white;
+            padding: 9px 13px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 12px;
+            display: inline-block;
+            margin: 3px;
+            font-weight: bold;
+        }
+
+        .report-btn:hover {
+            background: #12643e;
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .similarity-note {
+            margin-top: 12px;
+            color: #666;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .analysis-circle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .report-panel p {
+            line-height: 1.7;
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="topbar">
+    <div class="brand">
+        <div class="logo">SD</div>
+        <div>
+            <h2>SMART DOCUMENT DETECTOR</h2>
+            <p>Graph Theory & Discrete Optimization</p>
+        </div>
+    </div>
+
+    <div class="teacher">
+        <span>Teacher Portal</span>
+        <a href="{{ url_for('logout') }}" class="logout-btn">
+            Logout
+        </a>
+    </div>
+</header>
+
+<div class="layout">
+
+    <aside class="sidebar">
+
+        <a class="active" href="{{ url_for('teacher_dashboard') }}">
+            ▦ DASHBOARD
+        </a>
+
+        <a href="{{ url_for('create_assignment') }}">
+            ＋ CREATE ASSIGNMENT
+        </a>
+
+        <a href="#assignments">
+            ▤ MANAGE ASSIGNMENTS
+        </a>
+
+        <a href="{{ url_for('teacher_submissions') }}">
+            ▣ SUBMISSIONS
+        </a>
+
+        <a href="#reports">
+            ▥ SIMILARITY REPORTS
+        </a>
+
+        <a href="#reports">
+            ⌘ GRAPH VISUALIZATION
+        </a>
+
+        <a href="#system">
+            ⚙ SETTINGS
+        </a>
+
+        <div class="sidebar-footer">
+            <h3>DOCUMENT DETECTOR</h3>
+            <p>Smart Analysis System</p>
+        </div>
+
+    </aside>
+
+    <main class="content">
+
+        <section class="welcome">
+            <div>
+                <h1>Welcome to Dashboard!</h1>
+                <p>Monitor assignments and document similarity.</p>
+            </div>
+            <div class="welcome-icon">🎓</div>
+        </section>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="message {{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endwith %}
+
+        <!-- DASHBOARD STATISTICS -->
+
+        <section class="stats">
+
+            <div class="stat-card blue">
+                <h2>{{ data.total_assignments }}</h2>
+                <p>Total Assignments</p>
+            </div>
+
+            <div class="stat-card green">
+                <h2>{{ data.total_students }}</h2>
+                <p>Total Students</p>
+            </div>
+
+            <div class="stat-card purple">
+                <h2>{{ data.total_submissions }}</h2>
+                <p>Total Submissions</p>
+            </div>
+
+            <div class="stat-card red">
+                <h2>--</h2>
+                <p>Similarity Alerts</p>
+            </div>
+
+        </section>
+
+        <!-- MIDDLE SECTION -->
+
+        <section class="middle-grid">
+
+            <div class="panel">
+                <h2>📊 Assignment Overview</h2>
+
+                <div class="overview">
+                    <h3>{{ data.total_assignments }}</h3>
+                    <p>Assignments Created</p>
+
+                    <a href="{{ url_for('create_assignment') }}"
+                       class="action blue-btn">
+                        + Create New Assignment
+                    </a>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>🎯 Similarity Analysis</h2>
+
+                <div class="analysis">
+                    <div class="analysis-circle">PDF</div>
+                    <p>Document comparison system</p>
+                    <small>Compare submitted PDFs for the same assignment.</small>
+                </div>
+
+                <p class="similarity-note">
+                    Similarity results are visible only to the teacher.
+                </p>
+            </div>
+
+            <div class="panel quick">
+                <h2>⚡ Quick Actions</h2>
+
+                <a href="{{ url_for('create_assignment') }}"
+                   class="action blue-btn">
+                    Create Assignment
+                </a>
+
+                <a href="#assignments"
+                   class="action green-btn">
+                    View Assignments
+                </a>
+
+                <a href="{{ url_for('teacher_submissions') }}"
+                   class="action orange-btn">
+                    View Student Submissions
+                </a>
+
+                <a href="#reports"
+                   class="action orange-btn">
+                    View Similarity Reports
+                </a>
+            </div>
+
+        </section>
+
+        <!-- ASSIGNMENT TABLE -->
+
+        <section class="bottom-grid">
+
+            <div class="panel" id="assignments">
+
+                <h2>▤ Recent Assignments</h2>
+
+                <div class="table-container">
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Assignment ID</th>
+                                <th>Assignment Name</th>
+                                <th>Maximum Pages</th>
+                                <th>Threshold</th>
+                                <th>Similarity Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for assignment in data.recent_assignments %}
+
+                            <tr>
+                                <td>{{ assignment.id }}</td>
+
+                                <td>{{ assignment.title }}</td>
+
+                                <td>{{ assignment.max_pages }}</td>
+
+                                <td>
+                                    {{ assignment.similarity_threshold }}%
+                                </td>
+
+                                <td>
+
+                                    <form method="POST"
+                                          action="{{ url_for('check_similarity', assignment_id=assignment.id) }}"
+                                          style="display:inline;">
+
+                                        <button type="submit"
+                                                class="similarity-btn">
+                                            Check Similarity
+                                        </button>
+
+                                    </form>
+
+                                    <a href="{{ url_for('similarity_report', assignment_id=assignment.id) }}"
+                                       class="report-btn">
+                                        View Report
+                                    </a>
+
+                                </td>
+                            </tr>
+
+                            {% else %}
+
+                            <tr>
+                                <td colspan="5" class="empty">
+                                    No assignments created yet.
+                                </td>
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+                    </table>
+
+                </div>
+
+            </div>
+
+            <!-- SYSTEM INFORMATION -->
+
+            <div class="panel" id="system">
+
+                <h2>⚙ System Information</h2>
+
+                <div class="info">
+                    <p>Backend <b>Python Flask</b></p>
+                    <p>Database <b>SQLite</b></p>
+                    <p>Frontend <b>HTML & CSS</b></p>
+                    <p>PDF Library <b>PyPDF</b></p>
+                    <p>Similarity <b>SequenceMatcher</b></p>
+                    <p>Maximum Upload <b>50 MB</b></p>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- SIMILARITY REPORT SECTION -->
+
+        <section class="panel report-panel" id="reports">
+
+            <h2>📈 Similarity Analysis Reports</h2>
+
+            <p>
+                Select an assignment and click
+                <b>Check Similarity</b> to compare its submitted PDFs.
+            </p>
+
+            <p>
+                The system compares each readable PDF with the other
+                submitted PDFs belonging to the same assignment.
+            </p>
+
+            <p class="similarity-note">
+                Automatic checking is performed when the teacher opens
+                this dashboard after an assignment's end date.
+                Manual checking is also available at any time.
+            </p>
+
+            <p class="similarity-note">
+                Similarity percentage indicates textual overlap.
+                It is not, by itself, proof of plagiarism.
+            </p>
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>

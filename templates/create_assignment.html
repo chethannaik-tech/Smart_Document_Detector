@@ -1,0 +1,119 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Assignment</title>
+
+    <link rel="stylesheet"
+    href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<header class="topbar">
+    <div class="brand">
+        <div class="logo">SD</div>
+        <div>
+            <h2>SMART DOCUMENT DETECTOR</h2>
+            <p>Teacher Portal</p>
+        </div>
+    </div>
+    <div class="teacher">Teacher Portal</div>
+</header>
+
+<main class="content">
+
+    <a class="back-link" href="/">← Back to Dashboard</a>
+
+    <div class="panel form-panel">
+
+        <h2>＋ Create New Assignment</h2>
+        <p>Create and manage student assignments.</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="message {{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endwith %}
+
+        <form method="POST">
+
+            <div class="form-group">
+                <label>Assignment Title</label>
+                <input
+                    type="text"
+                    name="title"
+                    placeholder="Enter assignment title"
+                    required>
+            </div>
+
+            <div class="form-group">
+                <label>Description</label>
+                <textarea
+                    name="description"
+                    placeholder="Enter assignment description">
+                </textarea>
+            </div>
+
+            <div class="form-row">
+
+                <div class="form-group">
+                    <label>Starting Date</label>
+                    <input
+                        type="datetime-local"
+                        name="start_date"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label>Ending Date</label>
+                    <input
+                        type="datetime-local"
+                        name="end_date"
+                        required>
+                </div>
+
+            </div>
+
+            <div class="form-row">
+
+                <div class="form-group">
+                    <label>Maximum Pages</label>
+                    <input
+                        type="number"
+                        name="max_pages"
+                        value="30"
+                        min="1"
+                        max="30"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label>Similarity Threshold (%)</label>
+                    <input
+                        type="number"
+                        name="threshold"
+                        value="40"
+                        min="0"
+                        max="100"
+                        required>
+                </div>
+
+            </div>
+
+            <button type="submit" class="submit-btn">
+                Create Assignment
+            </button>
+
+        </form>
+
+    </div>
+
+</main>
+
+</body>
+</html>
