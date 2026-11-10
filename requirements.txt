@@ -2,3 +2,5 @@ Flask
 Werkzeug
 pypdf
 gunicorn
+psycopg[binary]
+supabase
