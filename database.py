@@ -12,7 +12,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 INSTANCE_FOLDER = os.path.join(BASE_DIR, "instance")
-
 os.makedirs(INSTANCE_FOLDER, exist_ok=True)
 
 DB_PATH = os.path.join(INSTANCE_FOLDER, "database.db")
@@ -25,11 +24,9 @@ print("DATABASE CONNECTED:", DB_PATH)
 # ==========================================
 
 def get_connection():
-
     connection = sqlite3.connect(DB_PATH)
     connection.row_factory = sqlite3.Row
     connection.execute("PRAGMA foreign_keys = ON")
-
     return connection
 
 
@@ -47,7 +44,6 @@ def add_column_if_missing(connection, table, column, definition):
     ]
 
     if column not in columns:
-
         connection.execute(
             f"ALTER TABLE {table} ADD COLUMN {column} {definition}"
         )
@@ -68,7 +64,9 @@ def init_db():
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 register_number TEXT UNIQUE NOT NULL,
-                department TEXT
+                department TEXT,
+                email TEXT,
+                semester INTEGER
             )
         """)
 
@@ -80,7 +78,8 @@ def init_db():
                 start_date TEXT,
                 end_date TEXT,
                 max_pages INTEGER DEFAULT 30,
-                similarity_threshold REAL DEFAULT 40
+                similarity_threshold REAL DEFAULT 40,
+                semester INTEGER
             )
         """)
 
@@ -140,6 +139,19 @@ def init_db():
         )
 
         add_column_if_missing(
+            connection, "assignments", "semester",
+            "INTEGER"
+        )
+
+        add_column_if_missing(
+            connection, "students", "email", "TEXT"
+        )
+
+        add_column_if_missing(
+            connection, "students", "semester", "INTEGER"
+        )
+
+        add_column_if_missing(
             connection, "submissions", "original_name", "TEXT"
         )
 
@@ -161,12 +173,10 @@ def init_db():
         print("Database initialized successfully!")
 
     except Exception:
-
         connection.rollback()
         raise
 
     finally:
-
         connection.close()
 
 
@@ -174,7 +184,13 @@ def init_db():
 # STUDENT FUNCTIONS
 # ==========================================
 
-def add_student(name, register_number, department):
+def add_student(
+    name,
+    register_number,
+    department=None,
+    email=None,
+    semester=None
+):
 
     connection = get_connection()
 
@@ -182,21 +198,24 @@ def add_student(name, register_number, department):
 
         connection.execute("""
             INSERT INTO students
-            (name, register_number, department)
-            VALUES (?, ?, ?)
-        """, (name, register_number, department))
+            (name, register_number, department, email, semester)
+            VALUES (?, ?, ?, ?, ?)
+        """, (
+            name,
+            register_number,
+            department,
+            email,
+            semester
+        ))
 
         connection.commit()
-
         return True
 
     except sqlite3.IntegrityError:
-
         connection.rollback()
         return False
 
     finally:
-
         connection.close()
 
 
@@ -265,19 +284,21 @@ def create_user(username, password, role, student_id=None):
             INSERT INTO users
             (username, password_hash, role, student_id)
             VALUES (?, ?, ?, ?)
-        """, (username, password_hash, role, student_id))
+        """, (
+            username,
+            password_hash,
+            role,
+            student_id
+        ))
 
         connection.commit()
-
         return True
 
     except sqlite3.IntegrityError:
-
         connection.rollback()
         return False
 
     finally:
-
         connection.close()
 
 
@@ -318,7 +339,6 @@ def verify_user(username, password):
                 return user
 
         except (ValueError, TypeError):
-
             return None
 
     return None
@@ -378,16 +398,13 @@ def add_submission(
         ))
 
         connection.commit()
-
         return True
 
     except Exception:
-
         connection.rollback()
         raise
 
     finally:
-
         connection.close()
 
 
@@ -515,7 +532,6 @@ def allow_resubmission(submission_id):
         return cursor.rowcount > 0
 
     finally:
-
         connection.close()
 
 
@@ -564,12 +580,10 @@ def update_submission_file(
         return cursor.rowcount > 0
 
     except Exception:
-
         connection.rollback()
         raise
 
     finally:
-
         connection.close()
 
 
@@ -634,12 +648,10 @@ def save_similarity_report(assignment_id, comparisons):
         connection.commit()
 
     except Exception:
-
         connection.rollback()
         raise
 
     finally:
-
         connection.close()
 
 

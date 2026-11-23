@@ -4,101 +4,464 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registered Students</title>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Student Management | Smart Document Detector</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background: #f3f6fc;
+            color: #263b59;
+        }
+
+        .topbar {
+            background: #102b52;
+            min-height: 75px;
+            padding: 0 5%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            color: white;
+        }
+
+        .brand {
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .brand span {
+            color: #60a5fa;
+        }
+
+        .back-btn {
+            background: #2563eb;
+            color: white;
+            padding: 11px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .container {
+            max-width: 1250px;
+            margin: 35px auto;
+            padding: 0 22px;
+        }
+
+        .heading {
+            margin-bottom: 25px;
+        }
+
+        .heading h1 {
+            color: #17365f;
+            font-size: 27px;
+            font-weight: 800;
+        }
+
+        .heading p {
+            color: #8391a6;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(180px, 230px));
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 22px;
+            border: 1px solid #e7edf5;
+            border-radius: 13px;
+            box-shadow: 0 5px 18px #17345d08;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: 800;
+            color: #2563eb;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #8391a6;
+            margin-top: 7px;
+            font-weight: 600;
+        }
+
+        .table-card {
+            background: white;
+            border: 1px solid #e7edf5;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px #17345d08;
+        }
+
+        .table-heading {
+            padding: 23px 25px;
+            border-bottom: 1px solid #edf1f7;
+        }
+
+        .table-heading h2 {
+            font-size: 17px;
+            color: #18365f;
+        }
+
+        .table-heading p {
+            color: #8996a9;
+            font-size: 11px;
+            margin-top: 6px;
+        }
+
+        .filters {
+            padding: 20px 25px;
+            display: grid;
+            grid-template-columns: 1fr 220px;
+            gap: 14px;
+            border-bottom: 1px solid #edf1f7;
+        }
+
+        .filters input,
+        .filters select {
+            width: 100%;
+            padding: 13px 14px;
+            border: 1px solid #dce4ef;
+            border-radius: 8px;
+            outline: none;
+            font-family: inherit;
+            font-size: 12px;
+            color: #334966;
+            background: white;
+        }
+
+        .filters input:focus,
+        .filters select:focus {
+            border-color: #2563eb;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 650px;
+        }
+
+        thead {
+            background: #f5f8fd;
+        }
+
+        th {
+            text-align: left;
+            padding: 16px 22px;
+            font-size: 11px;
+            color: #667991;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+        }
+
+        td {
+            padding: 17px 22px;
+            font-size: 12px;
+            color: #536780;
+            border-bottom: 1px solid #edf1f7;
+        }
+
+        tbody tr:hover {
+            background: #f8faff;
+        }
+
+        .student-name {
+            color: #193a67;
+            font-weight: 700;
+        }
+
+        .semester-badge {
+            display: inline-block;
+            background: #eaf2ff;
+            color: #2563eb;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 35px;
+            color: #8996a9;
+        }
+
+        .result-info {
+            padding: 14px 25px;
+            color: #8391a6;
+            font-size: 11px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 25px;
+            color: #98a4b5;
+            font-size: 11px;
+        }
+
+        @media(max-width: 650px) {
+            .topbar {
+                padding: 15px 18px;
+            }
+
+            .brand {
+                font-size: 13px;
+            }
+
+            .container {
+                padding: 0 13px;
+            }
+
+            .heading h1 {
+                font-size: 22px;
+            }
+
+            .filters {
+                grid-template-columns: 1fr;
+                padding: 15px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .stat-card {
+                padding: 16px;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
 <header class="topbar">
+
     <div class="brand">
-        <div class="logo">SD</div>
-        <div>
-            <h2>SMART DOCUMENT DETECTOR</h2>
-            <p>Student Management Portal</p>
-        </div>
+        SMART <span>DOCUMENT DETECTOR</span>
     </div>
-    <div class="teacher">Teacher Portal</div>
+
+    <a href="{{ url_for('teacher_dashboard') }}" class="back-btn">
+        Back to Dashboard
+    </a>
+
 </header>
 
-<div class="layout">
+<main class="container">
 
-    <aside class="sidebar">
-        <a href="/">▦ DASHBOARD</a>
-        <a href="/create-assignment">＋ CREATE ASSIGNMENT</a>
-        <a href="/register-student">＋ REGISTER STUDENT</a>
-        <a class="active" href="/students">▤ VIEW STUDENTS</a>
-    </aside>
+    <section class="heading">
+        <h1>Student Management</h1>
+        <p>Manage registered students and view their academic information.</p>
+    </section>
 
-    <main class="content">
+    <section class="stats">
 
-        <section class="welcome">
-            <div>
-                <h1>Registered Students</h1>
-                <p>View all registered student details.</p>
-            </div>
-            <div class="welcome-icon">👨‍🎓</div>
-        </section>
+        <div class="stat-card">
+            <div class="stat-number">{{ students|length }}</div>
+            <div class="stat-label">Total Registered Students</div>
+        </div>
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% for category, message in messages %}
-                <div class="message {{ category }}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endwith %}
+        <div class="stat-card">
+            <div class="stat-number" id="visibleCount">{{ students|length }}</div>
+            <div class="stat-label">Students Displayed</div>
+        </div>
 
-        <div class="panel" id="students">
+    </section>
 
-            <h2>📋 Student List</h2>
+    <section class="table-card">
+
+        <div class="table-heading">
+            <h2>Registered Students</h2>
+            <p>Search and filter students using their name, register number or semester.</p>
+        </div>
+
+        <div class="filters">
+
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Search by student name or register number..."
+                autocomplete="off"
+            >
+
+            <select id="semesterFilter">
+                <option value="all">All Semesters</option>
+                <option value="1">1st Semester</option>
+                <option value="2">2nd Semester</option>
+                <option value="3">3rd Semester</option>
+                <option value="4">4th Semester</option>
+                <option value="5">5th Semester</option>
+                <option value="6">6th Semester</option>
+                <option value="7">7th Semester</option>
+                <option value="8">8th Semester</option>
+            </select>
+
+        </div>
+
+        <div class="table-wrapper">
 
             <table>
+
                 <thead>
                     <tr>
-                        <th>Student ID</th>
+                        <th>#</th>
                         <th>Student Name</th>
                         <th>Register Number</th>
-                        <th>Department</th>
+                        <th>Semester</th>
                     </tr>
                 </thead>
 
-                <tbody>
+                <tbody id="studentTable">
 
                     {% for student in students %}
-                    <tr>
-                        <td>{{ student.id }}</td>
-                        <td>{{ student.name }}</td>
-                        <td>{{ student.register_number }}</td>
-                        <td>{{ student.department }}</td>
+
+                    <tr
+                        class="student-row"
+                        data-semester="{{ student['semester'] if student['semester'] else '' }}"
+                    >
+
+                        <td>{{ loop.index }}</td>
+
+                        <td class="student-name">
+                            {{ student['name'] }}
+                        </td>
+
+                        <td class="register-number">
+                            {{ student['register_number'] }}
+                        </td>
+
+                        <td>
+
+                            {% if student['semester'] %}
+                                <span class="semester-badge">
+                                    {{ student['semester'] }}{{ 'st' if student['semester']|int == 1 else 'nd' if student['semester']|int == 2 else 'rd' if student['semester']|int == 3 else 'th' }} Semester
+                                </span>
+                            {% else %}
+                                <span>Not Selected</span>
+                            {% endif %}
+
+                        </td>
+
                     </tr>
 
                     {% else %}
+
                     <tr>
                         <td colspan="4" class="empty">
                             No students registered yet.
                         </td>
                     </tr>
+
                     {% endfor %}
 
+                    <tr id="noResults" style="display:none;">
+                        <td colspan="4" class="empty">
+                            No students found for this search or semester.
+                        </td>
+                    </tr>
+
                 </tbody>
+
             </table>
-
-            <br>
-
-            <a href="/register-student" class="action blue-btn">
-                + Register New Student
-            </a>
-
-            <a href="/" class="action green-btn">
-                Back to Dashboard
-            </a>
 
         </div>
 
-    </main>
+        <div class="result-info" id="resultInfo">
+            Showing {{ students|length }} students
+        </div>
 
-</div>
+    </section>
+
+</main>
+
+<footer class="footer">
+    Smart Document Detector | Faculty Portal
+</footer>
+
+<script>
+
+    const searchInput = document.getElementById("searchInput");
+    const semesterFilter = document.getElementById("semesterFilter");
+    const rows = document.querySelectorAll(".student-row");
+
+    const visibleCount = document.getElementById("visibleCount");
+    const resultInfo = document.getElementById("resultInfo");
+    const noResults = document.getElementById("noResults");
+
+    function filterStudents() {
+
+        const searchValue = searchInput.value.toLowerCase().trim();
+        const selectedSemester = semesterFilter.value;
+
+        let count = 0;
+
+        rows.forEach(function(row) {
+
+            const name = row.querySelector(".student-name")
+                .textContent.toLowerCase().trim();
+
+            const registerNumber = row.querySelector(".register-number")
+                .textContent.toLowerCase().trim();
+
+            // Read semester directly from the database value
+            const studentSemester = parseInt(
+                row.getAttribute("data-semester"),
+                10
+            );
+
+            const matchesSearch =
+                name.includes(searchValue) ||
+                registerNumber.includes(searchValue);
+
+            const matchesSemester =
+                selectedSemester === "all" ||
+                studentSemester === parseInt(selectedSemester, 10);
+
+            if (matchesSearch && matchesSemester) {
+                row.style.display = "";
+                count++;
+            } else {
+                row.style.display = "none";
+            }
+
+        });
+
+        visibleCount.textContent = count;
+
+        resultInfo.textContent = "Showing " + count + " students";
+
+        noResults.style.display = count === 0 ? "" : "none";
+    }
+
+    searchInput.addEventListener("input", filterStudents);
+
+    semesterFilter.addEventListener("change", filterStudents);
+
+    // Display all students when the page first opens
+    filterStudents();
+
+</script>
 
 </body>
 </html>

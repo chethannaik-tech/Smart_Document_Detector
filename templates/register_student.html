@@ -4,114 +4,310 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Registration</title>
+
+    <title>Student Registration | Smart Document Detector</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        body {
+        * {
             margin: 0;
-            font-family: Arial, sans-serif;
-            background: #eef7f3;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        .register-box {
-            width: 420px;
-            max-width: calc(100% - 40px);
-            margin: 40px auto;
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background: #f4f6fb;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 25px 15px;
+        }
+
+        .register-container {
+            width: 100%;
+            max-width: 480px;
             background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px #0002;
+            border: 1px solid #e8edf5;
+            border-radius: 17px;
+            padding: 32px;
+            box-shadow: 0 12px 35px #1b355b12;
         }
 
-        h2 {
+        .logo {
+            width: 52px;
+            height: 52px;
+            margin: 0 auto 15px;
+            display: grid;
+            place-items: center;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #2563eb, #0f3c91);
+            color: white;
+            font-size: 19px;
+            font-weight: 800;
+        }
+
+        h1 {
             text-align: center;
-            color: #15966b;
+            color: #172e52;
+            font-size: 23px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #8290a5;
+            font-size: 12px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 17px;
         }
 
         label {
             display: block;
-            margin-top: 15px;
-            font-weight: bold;
+            color: #334966;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 8px;
         }
 
-        input {
+        input,
+        select {
             width: 100%;
-            padding: 12px;
+            padding: 13px 14px;
+            border: 1px solid #dce4ef;
+            border-radius: 8px;
+            background: #fff;
+            color: #263e61;
+            font-family: inherit;
+            font-size: 13px;
+            outline: none;
+            transition: .2s;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px #2563eb15;
+        }
+
+        input::placeholder {
+            color: #a0aaba;
+        }
+
+        .semester-note {
+            color: #8290a5;
+            font-size: 10px;
             margin-top: 7px;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 6px;
+            line-height: 1.5;
         }
 
-        button {
+        .register-btn {
             width: 100%;
-            padding: 13px;
-            margin-top: 25px;
-            background: #15966b;
-            color: white;
+            padding: 14px;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #2563eb, #174b9a);
+            color: white;
+            font-size: 13px;
+            font-weight: 700;
             cursor: pointer;
-            font-size: 16px;
+            margin-top: 8px;
+            transition: .2s;
+        }
+
+        .register-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 17px #2563eb30;
         }
 
         .message {
+            padding: 11px;
+            border-radius: 7px;
+            font-size: 12px;
+            margin-bottom: 12px;
             text-align: center;
-            color: #c62828;
+        }
+
+        .message.success {
+            background: #e7f8ef;
+            color: #16834a;
+        }
+
+        .message.error {
+            background: #fff0f0;
+            color: #c03939;
         }
 
         .links {
             text-align: center;
-            margin-top: 20px;
-            line-height: 2;
+            margin-top: 23px;
+            font-size: 12px;
+            line-height: 2.2;
+        }
+
+        .links a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .links a:hover {
+            text-decoration: underline;
+        }
+
+        .footer {
+            text-align: center;
+            color: #9aa6b7;
+            font-size: 10px;
+            margin-top: 22px;
+        }
+
+        @media(max-width: 450px) {
+            .register-container {
+                padding: 23px 19px;
+            }
         }
     </style>
 </head>
 
 <body>
 
-<div class="register-box">
+<div class="register-container">
 
-    <h2>Student Registration</h2>
-    <p style="text-align:center;">
-        Create your Student Account
+    <div class="logo">SD</div>
+
+    <h1>Student Registration</h1>
+
+    <p class="subtitle">
+        Create your student account and access your academic portal.
     </p>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% for category, message in messages %}
-            <p class="message">{{ message }}</p>
+            <div class="message {{ category }}">
+                {{ message }}
+            </div>
         {% endfor %}
     {% endwith %}
 
     <form method="POST">
 
-        <label>Student Name</label>
-        <input type="text" name="name" required>
+        <div class="form-group">
+            <label for="name">Student Name</label>
 
-        <label>Register Number</label>
-        <input type="text" name="register_number" required>
+            <input
+                type="text"
+                id="name"
+                name="name"
+                placeholder="Enter your full name"
+                required
+            >
+        </div>
 
-        <label>Department</label>
-        <input type="text" name="department" required>
+        <div class="form-group">
+            <label for="register_number">Register Number</label>
 
-        <label>Create Password</label>
-        <input type="password" name="password"
-               minlength="8" required>
+            <input
+                type="text"
+                id="register_number"
+                name="register_number"
+                placeholder="Enter your register number"
+                required
+            >
+        </div>
 
-        <label>Confirm Password</label>
-        <input type="password" name="confirm_password"
-               minlength="8" required>
+        <div class="form-group">
+            <label for="email">Email Address</label>
 
-        <button type="submit">Register</button>
+            <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="Enter your email address"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="semester">Select Your Current Semester</label>
+
+            <select
+                id="semester"
+                name="semester"
+                required
+            >
+                <option value="">-- Choose Your Semester --</option>
+                <option value="1">1st Semester</option>
+                <option value="2">2nd Semester</option>
+                <option value="3">3rd Semester</option>
+                <option value="4">4th Semester</option>
+                <option value="5">5th Semester</option>
+                <option value="6">6th Semester</option>
+                <option value="7">7th Semester</option>
+                <option value="8">8th Semester</option>
+            </select>
+
+            <p class="semester-note">
+                Select your currently studying semester.
+                Your assignments will be displayed according to this selection.
+            </p>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Create Password</label>
+
+            <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Create a password"
+                minlength="8"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="confirm_password">Confirm Password</label>
+
+            <input
+                type="password"
+                id="confirm_password"
+                name="confirm_password"
+                placeholder="Re-enter your password"
+                minlength="8"
+                required
+            >
+        </div>
+
+        <button type="submit" class="register-btn">
+            Create Student Account
+        </button>
 
     </form>
 
     <div class="links">
+
         <a href="{{ url_for('student_login') }}">
             Already registered? Student Login
         </a>
+
         <br>
-        <a href="{{ url_for('home') }}">Back to Home</a>
+
+        <a href="{{ url_for('home') }}">
+            Back to Home
+        </a>
+
+    </div>
+
+    <div class="footer">
+        Smart Document Detector | Academic Management System
     </div>
 
 </div>

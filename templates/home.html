@@ -4,113 +4,354 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Smart Document Detector</title>
 
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <style>
-        body {
+        * {
             margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f1f5fb;
-            text-align: center;
+            padding: 0;
+            box-sizing: border-box;
         }
+
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background: #f3f6fc;
+            color: #243957;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HEADER */
 
         header {
-            background: #173b72;
+            background: #102b52;
             color: white;
-            padding: 25px;
+            min-height: 80px;
+            padding: 18px 7%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 3px 15px #102b5220;
         }
 
-        .container {
-            margin: 70px auto;
-            max-width: 750px;
-            padding: 20px;
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 19px;
+            font-weight: 800;
         }
+
+        .brand-icon {
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #2563eb;
+            border-radius: 10px;
+            font-size: 18px;
+        }
+
+        .brand span {
+            color: #60a5fa;
+        }
+
+        .header-label {
+            color: #cbd5e1;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        /* MAIN */
+
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 65px 20px;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 42px;
+            max-width: 700px;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #e5efff;
+            color: #2563eb;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 18px;
+            letter-spacing: .5px;
+        }
+
+        .hero h1 {
+            color: #142f55;
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 13px;
+        }
+
+        .hero p {
+            color: #718198;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        /* PORTALS */
 
         .portals {
-            display: flex;
-            justify-content: center;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
             gap: 25px;
-            flex-wrap: wrap;
+            width: 100%;
+            max-width: 850px;
         }
 
         .portal {
             background: white;
-            width: 260px;
-            padding: 30px 15px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px #0002;
+            padding: 36px 28px;
+            border: 1px solid #e6edf6;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 8px 25px #17345d0d;
+            transition: .25s;
+        }
+
+        .portal:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px #17345d18;
+        }
+
+        .portal-icon {
+            width: 66px;
+            height: 66px;
+            margin: 0 auto 22px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 29px;
+        }
+
+        .faculty-icon {
+            background: #e7efff;
+        }
+
+        .student-icon {
+            background: #e4f7ef;
         }
 
         .portal h2 {
-            color: #173b72;
+            color: #18365f;
+            font-size: 21px;
+            margin-bottom: 12px;
         }
 
         .portal p {
-            color: #666;
+            color: #8290a5;
+            font-size: 13px;
+            line-height: 1.8;
+            min-height: 48px;
+            margin-bottom: 22px;
         }
 
         .btn {
             display: inline-block;
-            background: #1769d2;
+            width: 180px;
+            padding: 13px 20px;
+            border-radius: 8px;
             color: white;
-            padding: 12px 25px;
             text-decoration: none;
-            border-radius: 6px;
-            margin-top: 15px;
+            font-size: 13px;
+            font-weight: 700;
+            transition: .2s;
         }
 
-        .student {
-            background: #15966b;
+        .faculty-btn {
+            background: #2563eb;
         }
+
+        .faculty-btn:hover {
+            background: #1749b5;
+        }
+
+        .student-btn {
+            background: #079669;
+        }
+
+        .student-btn:hover {
+            background: #067a56;
+        }
+
+        .register-link {
+            display: block;
+            margin-top: 18px;
+            color: #2563eb;
+            font-size: 12px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .register-link:hover {
+            text-decoration: underline;
+        }
+
+        /* FOOTER */
 
         footer {
-            margin-top: 60px;
-            color: #777;
+            background: white;
+            border-top: 1px solid #e8edf5;
+            padding: 20px;
+            text-align: center;
+            color: #8997aa;
+            font-size: 11px;
+        }
+
+        footer strong {
+            color: #385477;
+        }
+
+        /* MOBILE */
+
+        @media (max-width: 650px) {
+            header {
+                padding: 15px 18px;
+            }
+
+            .brand {
+                font-size: 14px;
+            }
+
+            .header-label {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 27px;
+            }
+
+            .portals {
+                grid-template-columns: 1fr;
+                max-width: 400px;
+            }
+
+            .portal {
+                padding: 28px 20px;
+            }
+
+            .main {
+                padding: 45px 16px;
+            }
         }
     </style>
 </head>
 
 <body>
 
-<header>
-    <h1>Smart Document Detector</h1>
-    <p>Assignment Management and Document Similarity System</p>
-</header>
+    <header>
 
-<div class="container">
-
-    <h2>Welcome to Smart Document Detector</h2>
-    <p>Please select your portal to continue.</p>
-
-    <div class="portals">
-
-        <div class="portal">
-            <h2>Teacher Portal</h2>
-            <p>Manage assignments and view registered students.</p>
-            <a href="{{ url_for('teacher_login') }}" class="btn">
-                Teacher Login
-            </a>
+        <div class="brand">
+            <div class="brand-icon">SD</div>
+            <div>
+                SMART <span>DOCUMENT DETECTOR</span>
+            </div>
         </div>
 
-        <div class="portal">
-            <h2>Student Portal</h2>
-            <p>Access your student account and dashboard.</p>
-            <a href="{{ url_for('student_login') }}" class="btn student">
-                Student Login
-            </a>
-            <br>
-            <a href="{{ url_for('register_student') }}">
-                New Student? Register Here
-            </a>
+        <div class="header-label">
+            ACADEMIC MANAGEMENT SYSTEM
         </div>
 
-    </div>
+    </header>
 
-</div>
+    <main class="main">
 
-<footer>
-    <p>Smart Document Detector Project</p>
-</footer>
+        <section class="hero">
+
+            <div class="tag">
+                ACADEMIC MANAGEMENT SYSTEM
+            </div>
+
+            <h1>Smart Document Detector</h1>
+
+            <p>
+                Assignment Management and Document Similarity Detection
+                System for Students and Faculty.
+            </p>
+
+        </section>
+
+        <section class="portals">
+
+            <!-- FACULTY PORTAL -->
+
+            <div class="portal">
+
+                <div class="portal-icon faculty-icon">
+                    &#128100;
+                </div>
+
+                <h2>Faculty Portal</h2>
+
+                <p>
+                    Manage assignments, view registered students
+                    and monitor assignment submissions.
+                </p>
+
+                <a href="{{ url_for('teacher_login') }}"
+                   class="btn faculty-btn">
+                    Faculty Login
+                </a>
+
+            </div>
+
+            <!-- STUDENT PORTAL -->
+
+            <div class="portal">
+
+                <div class="portal-icon student-icon">
+                    &#127891;
+                </div>
+
+                <h2>Student Portal</h2>
+
+                <p>
+                    Access assignments, submit PDF documents
+                    and track your submissions.
+                </p>
+
+                <a href="{{ url_for('student_login') }}"
+                   class="btn student-btn">
+                    Student Login
+                </a>
+
+                <a href="{{ url_for('register_student') }}"
+                   class="register-link">
+                    New Student? Register Here
+                </a>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer>
+        <strong>Smart Document Detector</strong>
+        | Academic Management System
+    </footer>
 
 </body>
 </html>

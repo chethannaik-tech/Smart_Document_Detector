@@ -20,11 +20,13 @@
             min-height: 100vh;
         }
 
+        /* Sidebar */
         .sidebar {
             width: 240px;
             background: #172554;
             color: white;
             padding: 25px 18px;
+            flex-shrink: 0;
         }
 
         .sidebar h2 {
@@ -45,12 +47,22 @@
             background: #2563eb;
         }
 
+        .sidebar .logout {
+            background: #dc2626;
+        }
+
+        .sidebar .logout:hover {
+            background: #b91c1c;
+        }
+
+        /* Main Content */
         .main {
             flex: 1;
             padding: 30px;
             min-width: 0;
         }
 
+        /* Topbar */
         .topbar {
             display: flex;
             justify-content: space-between;
@@ -60,26 +72,23 @@
             flex-wrap: wrap;
         }
 
-        .topbar h2, .section h2 {
+        .topbar h2,
+        .section h2 {
             color: #172554;
         }
 
-        .welcome, .card, .section {
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            margin-bottom: 25px;
-        }
-
-        .welcome h2 {
-            color: #172554;
-            margin-bottom: 10px;
-        }
-
+        /* Dashboard Cards */
         .cards {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
         }
 
         .card h3 {
@@ -92,7 +101,12 @@
             color: #2563eb;
         }
 
+        /* Sections */
         .section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
             overflow-x: auto;
         }
 
@@ -100,6 +114,7 @@
             margin-bottom: 20px;
         }
 
+        /* Tables */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -117,6 +132,7 @@
             color: #172554;
         }
 
+        /* Buttons */
         .btn {
             display: inline-block;
             background: #2563eb;
@@ -133,10 +149,7 @@
             background: #1d4ed8;
         }
 
-        .logout {
-            background: #dc2626;
-        }
-
+        /* Submission Status */
         .status {
             display: inline-block;
             padding: 7px 10px;
@@ -155,10 +168,12 @@
             color: #92400e;
         }
 
+        /* Profile */
         .profile p {
             margin: 12px 0;
         }
 
+        /* Responsive Design */
         @media (max-width: 700px) {
             body {
                 flex-direction: column;
@@ -177,44 +192,62 @@
 
 <body>
 
+    <!-- Sidebar -->
     <div class="sidebar">
+
         <h2>Student Portal</h2>
 
         <a href="#overview">Dashboard</a>
         <a href="#assignments">My Assignments</a>
         <a href="#submissions">My Submissions</a>
         <a href="#profile">My Profile</a>
-        <a href="{{ url_for('logout') }}" class="logout">Logout</a>
+
+        <a href="{{ url_for('logout') }}" class="logout">
+            Logout
+        </a>
+
     </div>
 
+    <!-- Main Content -->
     <div class="main">
 
-        <div class="topbar">
+        <!-- Topbar -->
+        <div class="topbar" id="overview">
+
             <h2>Student Dashboard</h2>
+
             <strong>Welcome, {{ username }}</strong>
+
         </div>
 
-        <div class="welcome" id="overview">
-            <h2>Welcome to Smart Document Detector</h2>
-            <p>View your assignments and submit your PDF documents here.</p>
-        </div>
-
+        <!-- Dashboard Cards -->
         <div class="cards">
+
             <div class="card">
+
                 <h3>Total Assignments</h3>
+
                 <h1>{{ assignments|length }}</h1>
+
             </div>
 
             <div class="card">
+
                 <h3>My Submissions</h3>
+
                 <h1>{{ submissions|length }}</h1>
+
             </div>
+
         </div>
 
+        <!-- Available Assignments -->
         <div class="section" id="assignments">
+
             <h2>Available Assignments</h2>
 
             <table>
+
                 <thead>
                     <tr>
                         <th>Title</th>
@@ -227,21 +260,33 @@
                 </thead>
 
                 <tbody>
+
                     {% for assignment in assignments %}
+
                     <tr>
+
                         <td>{{ assignment.title }}</td>
+
                         <td>{{ assignment.description }}</td>
+
                         <td>{{ assignment.start_date }}</td>
+
                         <td>{{ assignment.end_date }}</td>
+
                         <td>{{ assignment.max_pages }}</td>
 
                         <td>
+
                             {% set ns = namespace(submission=None) %}
 
                             {% for item in submissions %}
+
                                 {% if item.assignment_id == assignment.id and ns.submission is none %}
+
                                     {% set ns.submission = item %}
+
                                 {% endif %}
+
                             {% endfor %}
 
                             {% if ns.submission is none %}
@@ -271,22 +316,32 @@
                                 </span>
 
                             {% endif %}
+
                         </td>
+
                     </tr>
 
                     {% else %}
+
                     <tr>
                         <td colspan="6">No assignments available.</td>
                     </tr>
+
                     {% endfor %}
+
                 </tbody>
+
             </table>
+
         </div>
 
+        <!-- My Submissions -->
         <div class="section" id="submissions">
+
             <h2>My Submissions</h2>
 
             <table>
+
                 <thead>
                     <tr>
                         <th>Assignment</th>
@@ -296,26 +351,46 @@
                 </thead>
 
                 <tbody>
+
                     {% for submission in submissions %}
+
                     <tr>
+
                         <td>{{ submission.assignment_title }}</td>
+
                         <td>{{ submission.original_name }}</td>
+
                         <td>{{ submission.submitted_at }}</td>
+
                     </tr>
 
                     {% else %}
+
                     <tr>
                         <td colspan="3">No submissions yet.</td>
                     </tr>
+
                     {% endfor %}
+
                 </tbody>
+
             </table>
+
         </div>
 
+        <!-- My Profile -->
         <div class="section profile" id="profile">
+
             <h2>My Profile</h2>
-            <p><strong>Username:</strong> {{ username }}</p>
-            <p><strong>Role:</strong> Student</p>
+
+            <p>
+                <strong>Username:</strong> {{ username }}
+            </p>
+
+            <p>
+                <strong>Role:</strong> Student
+            </p>
+
         </div>
 
     </div>

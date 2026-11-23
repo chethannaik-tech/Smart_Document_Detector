@@ -46,18 +46,51 @@
             margin-bottom: 20px;
         }
 
-        .table-box {
+        .filter-box, .table-box {
             background: white;
             padding: 20px;
             border-radius: 10px;
-            overflow-x: auto;
             box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+            margin-bottom: 20px;
+        }
+
+        .filter-form {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        select {
+            padding: 11px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            min-width: 200px;
+            font-size: 14px;
+        }
+
+        .filter-btn {
+            background: #103c78;
+            color: white;
+            border: none;
+            padding: 11px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .reset-btn {
+            background: #64748b;
+            color: white;
+            padding: 11px 20px;
+            border-radius: 5px;
+            text-decoration: none;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 850px;
+            min-width: 950px;
         }
 
         th, td {
@@ -94,11 +127,6 @@
             font-weight: bold;
         }
 
-        .submitted {
-            color: #103c78;
-            font-weight: bold;
-        }
-
         .empty {
             text-align: center;
             padding: 30px;
@@ -113,9 +141,28 @@
             color: #176b35;
         }
 
+        .semester-label {
+            display: inline-block;
+            background: #eaf1fb;
+            color: #103c78;
+            padding: 6px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
         @media(max-width: 600px) {
             body {
                 padding: 12px;
+            }
+
+            .filter-form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            select, .filter-btn, .reset-btn {
+                width: 100%;
+                text-align: center;
             }
         }
     </style>
@@ -140,87 +187,139 @@
         {% endfor %}
     {% endwith %}
 
+    <div class="filter-box">
+
+        <h3>Filter Student Submissions</h3>
+
+        <form method="GET"
+              action="{{ url_for('teacher_submissions') }}"
+              class="filter-form">
+
+            <select name="semester">
+                <option value="">All Semesters</option>
+
+                {% for sem in semesters %}
+                    <option value="{{ sem }}"
+                        {% if selected_semester == sem|string %}selected{% endif %}>
+                        {{ sem }}{% if sem == 1 %}st{% elif sem == 2 %}nd{% elif sem == 3 %}rd{% else %}th{% endif %} Semester
+                    </option>
+                {% endfor %}
+
+            </select>
+
+            <button type="submit" class="filter-btn">
+                Apply Filter
+            </button>
+
+            <a href="{{ url_for('teacher_submissions') }}"
+               class="reset-btn">
+                Reset
+            </a>
+
+        </form>
+
+    </div>
+
     <div class="table-box">
 
-        <h3 style="margin-bottom: 20px;">All Submitted Assignments</h3>
+        <h3 style="margin-bottom: 20px;">
+            {% if selected_semester %}
+                {{ selected_semester }} Semester Submissions
+            {% else %}
+                All Submitted Assignments
+            {% endif %}
+        </h3>
 
         {% if submissions %}
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Student Name</th>
-                    <th>Register Number</th>
-                    <th>Assignment</th>
-                    <th>PDF File</th>
-                    <th>Submitted At</th>
-                    <th>Download</th>
-                    <th>Permission</th>
-                </tr>
-            </thead>
+        <div style="overflow-x:auto;">
 
-            <tbody>
+            <table>
 
-                {% for submission in submissions %}
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Register Number</th>
+                        <th>Semester</th>
+                        <th>Assignment</th>
+                        <th>PDF File</th>
+                        <th>Submitted At</th>
+                        <th>Download</th>
+                        <th>Permission</th>
+                    </tr>
+                </thead>
 
-                <tr>
+                <tbody>
 
-                    <td>{{ submission.student_name }}</td>
+                    {% for submission in submissions %}
 
-                    <td>{{ submission.register_number }}</td>
+                    <tr>
 
-                    <td>{{ submission.assignment_title }}</td>
+                        <td>{{ submission.student_name }}</td>
 
-                    <td>
-                        {{ submission.original_name or "assignment.pdf" }}
-                    </td>
+                        <td>{{ submission.register_number }}</td>
 
-                    <td>{{ submission.submitted_at or "N/A" }}</td>
-
-                    <td>
-                        <a
-                            href="{{ url_for('download_submission', submission_id=submission.id) }}"
-                            class="download">
-                            Download PDF
-                        </a>
-                    </td>
-
-                    <td>
-
-                        {% if submission.resubmission_allowed %}
-
-                            <span class="allowed">
-                                Permission Granted
+                        <td>
+                            <span class="semester-label">
+                                {{ submission.semester or "N/A" }}
                             </span>
+                        </td>
 
-                        {% else %}
+                        <td>{{ submission.assignment_title }}</td>
 
-                            <form
-                                method="POST"
-                                action="{{ url_for('teacher_allow_resubmission', submission_id=submission.id) }}">
+                        <td>
+                            {{ submission.original_name or "assignment.pdf" }}
+                        </td>
 
-                                <button type="submit" class="allow">
-                                    Allow Resubmission
-                                </button>
+                        <td>
+                            {{ submission.submitted_at or "N/A" }}
+                        </td>
 
-                            </form>
+                        <td>
+                            <a href="{{ url_for('download_submission', submission_id=submission.id) }}"
+                               class="download">
+                                Download PDF
+                            </a>
+                        </td>
 
-                        {% endif %}
+                        <td>
 
-                    </td>
+                            {% if submission.resubmission_allowed %}
 
-                </tr>
+                                <span class="allowed">
+                                    Permission Granted
+                                </span>
 
-                {% endfor %}
+                            {% else %}
 
-            </tbody>
-        </table>
+                                <form method="POST"
+                                      action="{{ url_for('teacher_allow_resubmission', submission_id=submission.id) }}">
+
+                                    <button type="submit" class="allow">
+                                        Allow Resubmission
+                                    </button>
+
+                                </form>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
 
         {% else %}
 
             <div class="empty">
                 <h3>No submissions available</h3>
-                <p>Student submissions will appear here.</p>
+                <p>No student submissions found for this semester.</p>
             </div>
 
         {% endif %}

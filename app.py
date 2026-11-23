@@ -1,10 +1,7 @@
-
 from flask import (
-    Flask, render_template, request,
-    redirect, url_for, flash, session,
-    send_from_directory, abort
+    Flask, render_template, request, redirect,
+    url_for, flash, session, send_from_directory, abort
 )
-
 from functools import wraps
 from werkzeug.utils import secure_filename
 from pypdf import PdfReader
@@ -52,9 +49,7 @@ app.secret_key = os.environ.get(
 )
 
 UPLOAD_FOLDER = os.path.join(
-    app.root_path,
-    "instance",
-    "uploads"
+    app.root_path, "instance", "uploads"
 )
 
 ALLOWED_EXTENSIONS = {"pdf"}
@@ -72,7 +67,6 @@ init_db()
 # ==========================================
 
 def allowed_file(filename):
-
     return (
         "." in filename
         and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -92,9 +86,7 @@ def teacher_required(function):
             return redirect(url_for("teacher_login"))
 
         if session.get("role") != "teacher":
-
             flash("Teacher access only!", "error")
-
             return redirect(url_for("student_dashboard"))
 
         return function(*args, **kwargs)
@@ -115,9 +107,7 @@ def student_required(function):
             return redirect(url_for("student_login"))
 
         if session.get("role") != "student":
-
             flash("Student access only!", "error")
-
             return redirect(url_for("teacher_dashboard"))
 
         return function(*args, **kwargs)
@@ -132,24 +122,16 @@ def student_required(function):
 def get_pdf_hash(file_path):
 
     try:
-
         sha256 = hashlib.sha256()
 
         with open(file_path, "rb") as pdf_file:
-
-            for chunk in iter(
-                lambda: pdf_file.read(8192),
-                b""
-            ):
-
+            for chunk in iter(lambda: pdf_file.read(8192), b""):
                 sha256.update(chunk)
 
         return sha256.hexdigest()
 
     except OSError:
-
         app.logger.exception("PDF hash generation failed")
-
         return None
 
 
@@ -168,7 +150,6 @@ def extract_pdf_text(file_name):
         return ""
 
     try:
-
         reader = PdfReader(file_path)
 
         if reader.is_encrypted:
@@ -177,33 +158,18 @@ def extract_pdf_text(file_name):
         extracted_pages = []
 
         for page in reader.pages:
+            extracted_pages.append(page.extract_text() or "")
 
-            page_text = page.extract_text() or ""
+        text = " ".join(extracted_pages).lower()
+        text = re.sub(r"\s+", " ", text)
 
-            extracted_pages.append(page_text)
-
-        text = " ".join(extracted_pages)
-
-        # Normalize text
-        text = text.lower()
-
-        text = re.sub(
-            r"\s+",
-            " ",
-            text
-        )
-
-        text = text.strip()
-
-        return text
+        return text.strip()
 
     except Exception:
-
         app.logger.exception(
             "PDF text extraction failed: %s",
             file_name
         )
-
         return ""
 
 
@@ -213,7 +179,6 @@ def extract_pdf_text(file_name):
 
 def calculate_similarity(text1, text2):
 
-    # Exact extracted text match
     if text1 == text2:
         return 100.0
 
@@ -239,13 +204,10 @@ def calculate_similarity(text1, text2):
 
 def generate_similarity_report_for_assignment(assignment_id):
 
-    submissions = get_submissions_for_assignment(
-        assignment_id
-    )
+    submissions = get_submissions_for_assignment(assignment_id)
 
     valid_submissions = []
 
-    # Extract text and hash from each PDF
     for submission in submissions:
 
         file_name = submission["file_name"]
@@ -265,7 +227,6 @@ def generate_similarity_report_for_assignment(assignment_id):
 
         extracted_text = extract_pdf_text(file_name)
 
-        # Ignore image-only or unreadable PDFs
         if not extracted_text:
             continue
 
@@ -277,7 +238,6 @@ def generate_similarity_report_for_assignment(assignment_id):
 
     comparisons = []
 
-    # Compare each unique pair
     for first_index in range(len(valid_submissions)):
 
         for second_index in range(
@@ -286,41 +246,28 @@ def generate_similarity_report_for_assignment(assignment_id):
         ):
 
             first = valid_submissions[first_index]
-
             second = valid_submissions[second_index]
 
-            # Same exact PDF file
             if first["hash"] == second["hash"]:
-
                 similarity = 100.0
-
             else:
-
                 similarity = calculate_similarity(
                     first["text"],
                     second["text"]
                 )
 
             comparisons.append({
-
                 "student1_id": first["student_id"],
-
                 "student2_id": second["student_id"],
-
                 "similarity_percent": similarity
-
             })
 
-    # Save report
     save_similarity_report(
         assignment_id,
         comparisons
     )
 
-    return (
-        len(valid_submissions),
-        len(comparisons)
-    )
+    return len(valid_submissions), len(comparisons)
 
 
 # ==========================================
@@ -331,16 +278,10 @@ def generate_similarity_report_for_assignment(assignment_id):
 def home():
 
     if session.get("role") == "teacher":
-
-        return redirect(
-            url_for("teacher_dashboard")
-        )
+        return redirect(url_for("teacher_dashboard"))
 
     if session.get("role") == "student":
-
-        return redirect(
-            url_for("student_dashboard")
-        )
+        return redirect(url_for("student_dashboard"))
 
     return render_template("home.html")
 
@@ -354,37 +295,21 @@ def teacher_login():
 
     if request.method == "POST":
 
-        username = request.form.get(
-            "username", ""
-        ).strip()
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
 
-        password = request.form.get(
-            "password", ""
-        )
-
-        user = verify_user(
-            username,
-            password
-        )
+        user = verify_user(username, password)
 
         if user and user["role"] == "teacher":
 
             session.clear()
-
             session["user_id"] = user["id"]
-
             session["username"] = user["username"]
-
             session["role"] = "teacher"
 
-            return redirect(
-                url_for("teacher_dashboard")
-            )
+            return redirect(url_for("teacher_dashboard"))
 
-        flash(
-            "Invalid teacher username or password!",
-            "error"
-        )
+        flash("Invalid teacher username or password!", "error")
 
     return render_template("teacher_login.html")
 
@@ -398,37 +323,21 @@ def student_login():
 
     if request.method == "POST":
 
-        username = request.form.get(
-            "username", ""
-        ).strip()
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
 
-        password = request.form.get(
-            "password", ""
-        )
-
-        user = verify_user(
-            username,
-            password
-        )
+        user = verify_user(username, password)
 
         if user and user["role"] == "student":
 
             session.clear()
-
             session["user_id"] = user["id"]
-
             session["username"] = user["username"]
-
             session["role"] = "student"
 
-            return redirect(
-                url_for("student_dashboard")
-            )
+            return redirect(url_for("student_dashboard"))
 
-        flash(
-            "Invalid student username or password!",
-            "error"
-        )
+        flash("Invalid student username or password!", "error")
 
     return render_template("student_login.html")
 
@@ -442,44 +351,35 @@ def register_student():
 
     if request.method == "POST":
 
-        name = request.form.get(
-            "name", ""
-        ).strip()
-
+        name = request.form.get("name", "").strip()
         register_number = request.form.get(
             "register_number", ""
         ).strip()
-
-        department = request.form.get(
-            "department", ""
-        ).strip()
-
-        password = request.form.get(
-            "password", ""
-        )
-
-        confirm_password = request.form.get(
-            "confirm_password", ""
-        )
+        department = request.form.get("department", "").strip()
+        semester = request.form.get("semester", "").strip()
+        password = request.form.get("password", "")
+        confirm_password = request.form.get("confirm_password", "")
 
         if not all([
             name,
             register_number,
             department,
+            semester,
             password
         ]):
 
+            flash("Please fill all details!", "error")
+
+        elif semester not in {str(number) for number in range(1, 9)}:
+
             flash(
-                "Please fill all details!",
+                "Please select a valid semester (1 to 8).",
                 "error"
             )
 
         elif password != confirm_password:
 
-            flash(
-                "Passwords do not match!",
-                "error"
-            )
+            flash("Passwords do not match!", "error")
 
         elif len(password) < 8:
 
@@ -491,9 +391,10 @@ def register_student():
         else:
 
             success = add_student(
-                name,
-                register_number,
-                department
+                name=name,
+                register_number=register_number,
+                department=department,
+                semester=semester
             )
 
             if success:
@@ -511,39 +412,29 @@ def register_student():
                         "success"
                     )
 
-                    return redirect(
-                        url_for("student_login")
-                    )
+                    return redirect(url_for("student_login"))
 
                 connection = get_connection()
 
-                connection.execute(
-                    """
-                    DELETE FROM students
-                    WHERE register_number = ?
-                    """,
-                    (register_number,)
-                )
+                try:
+                    connection.execute(
+                        """
+                        DELETE FROM students
+                        WHERE register_number = ?
+                        """,
+                        (register_number,)
+                    )
+                    connection.commit()
 
-                connection.commit()
+                finally:
+                    connection.close()
 
-                connection.close()
-
-                flash(
-                    "Username already exists!",
-                    "error"
-                )
+                flash("Username already exists!", "error")
 
             else:
+                flash("Register number already exists!", "error")
 
-                flash(
-                    "Register number already exists!",
-                    "error"
-                )
-
-    return render_template(
-        "register_student.html"
-    )
+    return render_template("register_student.html")
 
 
 # ==========================================
@@ -559,13 +450,11 @@ def teacher_dashboard():
     for assignment in due_assignments:
 
         try:
-
             generate_similarity_report_for_assignment(
                 assignment["id"]
             )
 
         except Exception:
-
             app.logger.exception(
                 "Automatic similarity check failed"
             )
@@ -582,67 +471,39 @@ def teacher_dashboard():
 # CREATE ASSIGNMENT
 # ==========================================
 
-@app.route(
-    "/create-assignment",
-    methods=["GET", "POST"]
-)
+@app.route("/create-assignment", methods=["GET", "POST"])
 @teacher_required
 def create_assignment():
 
     if request.method == "POST":
 
-        title = request.form.get(
-            "title", ""
-        ).strip()
-
-        description = request.form.get(
-            "description", ""
-        )
-
-        start_date = request.form.get(
-            "start_date", ""
-        )
-
-        end_date = request.form.get(
-            "end_date", ""
-        )
+        title = request.form.get("title", "").strip()
+        description = request.form.get("description", "")
+        start_date = request.form.get("start_date", "")
+        end_date = request.form.get("end_date", "")
 
         try:
 
-            max_pages = int(
-                request.form.get("max_pages", 30)
-            )
-
-            threshold = int(
-                request.form.get("threshold", 40)
-            )
+            max_pages = int(request.form.get("max_pages", 30))
+            threshold = int(request.form.get("threshold", 40))
 
             if not title:
-
-                raise ValueError(
-                    "Assignment title is required."
-                )
+                raise ValueError("Assignment title is required.")
 
             if not 1 <= max_pages <= 30:
-
                 raise ValueError(
                     "Maximum pages must be between 1 and 30."
                 )
 
             if not 0 <= threshold <= 100:
-
                 raise ValueError(
                     "Threshold must be between 0 and 100."
                 )
 
             if not start_date or not end_date:
-
-                raise ValueError(
-                    "Please select both dates."
-                )
+                raise ValueError("Please select both dates.")
 
             if end_date <= start_date:
-
                 raise ValueError(
                     "End date must be after start date."
                 )
@@ -677,7 +538,6 @@ def create_assignment():
                 connection.commit()
 
             finally:
-
                 connection.close()
 
             flash(
@@ -685,20 +545,12 @@ def create_assignment():
                 "success"
             )
 
-            return redirect(
-                url_for("teacher_dashboard")
-            )
+            return redirect(url_for("teacher_dashboard"))
 
         except ValueError as error:
+            flash(str(error), "error")
 
-            flash(
-                str(error),
-                "error"
-            )
-
-    return render_template(
-        "create_assignment.html"
-    )
+    return render_template("create_assignment.html")
 
 
 # ==========================================
@@ -742,7 +594,8 @@ def student_dashboard():
         "student_dashboard.html",
         username=session.get("username"),
         assignments=assignments,
-        submissions=submissions
+        submissions=submissions,
+        student=student
     )
 
 
@@ -750,10 +603,7 @@ def student_dashboard():
 # STUDENT ASSIGNMENT UPLOAD
 # ==========================================
 
-@app.route(
-    "/submit-assignment",
-    methods=["GET", "POST"]
-)
+@app.route("/submit-assignment", methods=["GET", "POST"])
 @student_required
 def submit_assignment():
 
@@ -781,23 +631,14 @@ def submit_assignment():
         uploaded_file = request.files.get("file")
 
         if not assignment_id or not uploaded_file:
-
             flash(
                 "Please select an assignment and PDF file!",
                 "error"
             )
-
-            return redirect(
-                url_for("submit_assignment")
-            )
+            return redirect(url_for("submit_assignment"))
 
         if uploaded_file.filename == "":
-
-            flash(
-                "Please select a PDF file!",
-                "error"
-            )
-
+            flash("Please select a PDF file!", "error")
             return redirect(
                 url_for(
                     "submit_assignment",
@@ -806,12 +647,7 @@ def submit_assignment():
             )
 
         if not allowed_file(uploaded_file.filename):
-
-            flash(
-                "Only PDF files are allowed!",
-                "error"
-            )
-
+            flash("Only PDF files are allowed!", "error")
             return redirect(
                 url_for(
                     "submit_assignment",
@@ -819,7 +655,6 @@ def submit_assignment():
                 )
             )
 
-        # Verify assignment
         connection = get_connection()
 
         try:
@@ -834,21 +669,12 @@ def submit_assignment():
             ).fetchone()
 
         finally:
-
             connection.close()
 
         if assignment is None:
+            flash("Invalid assignment selected!", "error")
+            return redirect(url_for("student_dashboard"))
 
-            flash(
-                "Invalid assignment selected!",
-                "error"
-            )
-
-            return redirect(
-                url_for("student_dashboard")
-            )
-
-        # Check existing submission
         existing_submission = get_submission_for_student_assignment(
             student["id"],
             assignment["id"]
@@ -864,22 +690,13 @@ def submit_assignment():
                     "error"
                 )
 
-                return redirect(
-                    url_for("student_dashboard")
-                )
+                return redirect(url_for("student_dashboard"))
 
-        # Check PDF signature
         file_content = uploaded_file.read(5)
-
         uploaded_file.seek(0)
 
         if file_content != b"%PDF-":
-
-            flash(
-                "The selected file is not a valid PDF!",
-                "error"
-            )
-
+            flash("The selected file is not a valid PDF!", "error")
             return redirect(
                 url_for(
                     "submit_assignment",
@@ -887,18 +704,15 @@ def submit_assignment():
                 )
             )
 
-        # Validate PDF page count
         try:
 
             pdf_reader = PdfReader(uploaded_file)
 
             if pdf_reader.is_encrypted:
-
                 flash(
                     "Password-protected PDFs are not allowed!",
                     "error"
                 )
-
                 return redirect(
                     url_for(
                         "submit_assignment",
@@ -907,15 +721,11 @@ def submit_assignment():
                 )
 
             page_count = len(pdf_reader.pages)
-
             uploaded_file.seek(0)
 
         except Exception:
 
-            flash(
-                "Unable to read this PDF file!",
-                "error"
-            )
+            flash("Unable to read this PDF file!", "error")
 
             return redirect(
                 url_for(
@@ -925,12 +735,7 @@ def submit_assignment():
             )
 
         if page_count == 0:
-
-            flash(
-                "Empty PDF files are not allowed!",
-                "error"
-            )
-
+            flash("Empty PDF files are not allowed!", "error")
             return redirect(
                 url_for(
                     "submit_assignment",
@@ -953,11 +758,7 @@ def submit_assignment():
                 )
             )
 
-        # Save uploaded PDF
-        original_name = secure_filename(
-            uploaded_file.filename
-        )
-
+        original_name = secure_filename(uploaded_file.filename)
         unique_name = str(uuid.uuid4()) + ".pdf"
 
         save_path = os.path.join(
@@ -978,9 +779,7 @@ def submit_assignment():
                     original_name
                 )
 
-                message = (
-                    "Assignment submitted successfully!"
-                )
+                message = "Assignment submitted successfully!"
 
             else:
 
@@ -993,7 +792,6 @@ def submit_assignment():
                 )
 
                 if not updated:
-
                     raise Exception(
                         "Resubmission permission is not active."
                     )
@@ -1006,36 +804,24 @@ def submit_assignment():
                 if os.path.isfile(old_path):
                     os.remove(old_path)
 
-                message = (
-                    "Corrected PDF submitted successfully!"
-                )
+                message = "Corrected PDF submitted successfully!"
 
-            flash(
-                message,
-                "success"
-            )
-
-            return redirect(
-                url_for("student_dashboard")
-            )
+            flash(message, "success")
+            return redirect(url_for("student_dashboard"))
 
         except Exception:
 
             if os.path.exists(save_path):
                 os.remove(save_path)
 
-            app.logger.exception(
-                "Submission save failed"
-            )
+            app.logger.exception("Submission save failed")
 
             flash(
                 "Unable to submit assignment. Please try again.",
                 "error"
             )
 
-            return redirect(
-                url_for("student_dashboard")
-            )
+            return redirect(url_for("student_dashboard"))
 
     return render_template(
         "submit_assignment.html",
@@ -1046,22 +832,73 @@ def submit_assignment():
 
 # ==========================================
 # TEACHER VIEW SUBMISSIONS
+# FACULTY ONLY + SEMESTER FILTER
 # ==========================================
 
 @app.route("/teacher-submissions")
 @teacher_required
 def teacher_submissions():
 
-    submissions = get_all_submissions()
+    selected_semester = request.args.get(
+        "semester", ""
+    ).strip()
+
+    valid_semesters = {str(number) for number in range(1, 9)}
+
+    if selected_semester and selected_semester not in valid_semesters:
+
+        flash("Please select a valid semester.", "error")
+        return redirect(url_for("teacher_submissions"))
+
+    connection = get_connection()
+
+    try:
+
+        query = """
+            SELECT
+                submissions.*,
+                students.name AS student_name,
+                students.register_number,
+                students.semester,
+                assignments.title AS assignment_title
+
+            FROM submissions
+
+            JOIN students
+                ON submissions.student_id = students.id
+
+            JOIN assignments
+                ON submissions.assignment_id = assignments.id
+        """
+
+        parameters = []
+
+        if selected_semester:
+
+            query += " WHERE students.semester = ?"
+            parameters.append(int(selected_semester))
+
+        query += " ORDER BY submissions.id DESC"
+
+        submissions = connection.execute(
+            query,
+            parameters
+        ).fetchall()
+
+    finally:
+        connection.close()
 
     return render_template(
         "teacher_submissions.html",
-        submissions=submissions
+        submissions=submissions,
+        selected_semester=selected_semester,
+        semesters=range(1, 9)
     )
 
 
 # ==========================================
 # ALLOW RESUBMISSION
+# FACULTY ONLY
 # ==========================================
 
 @app.route(
@@ -1071,9 +908,7 @@ def teacher_submissions():
 @teacher_required
 def teacher_allow_resubmission(submission_id):
 
-    submission = get_submission_by_id(
-        submission_id
-    )
+    submission = get_submission_by_id(submission_id)
 
     if submission is None:
         abort(404)
@@ -1087,31 +922,25 @@ def teacher_allow_resubmission(submission_id):
 
     else:
 
-        success = allow_resubmission(
-            submission_id
-        )
+        success = allow_resubmission(submission_id)
 
         if success:
-
             flash(
                 "Resubmission permission granted successfully!",
                 "success"
             )
-
         else:
-
             flash(
                 "Unable to grant resubmission permission.",
                 "error"
             )
 
-    return redirect(
-        url_for("teacher_submissions")
-    )
+    return redirect(url_for("teacher_submissions"))
 
 
 # ==========================================
 # MANUAL SIMILARITY CHECK
+# FACULTY ONLY
 # ==========================================
 
 @app.route(
@@ -1135,7 +964,6 @@ def check_similarity(assignment_id):
         ).fetchone()
 
     finally:
-
         connection.close()
 
     if assignment is None:
@@ -1158,9 +986,7 @@ def check_similarity(assignment_id):
 
     except Exception:
 
-        app.logger.exception(
-            "Manual similarity check failed"
-        )
+        app.logger.exception("Manual similarity check failed")
 
         flash(
             "Unable to generate similarity report. "
@@ -1178,11 +1004,10 @@ def check_similarity(assignment_id):
 
 # ==========================================
 # SIMILARITY REPORT
+# FACULTY ONLY
 # ==========================================
 
-@app.route(
-    "/similarity-report/<int:assignment_id>"
-)
+@app.route("/similarity-report/<int:assignment_id>")
 @teacher_required
 def similarity_report(assignment_id):
 
@@ -1200,19 +1025,14 @@ def similarity_report(assignment_id):
         ).fetchone()
 
     finally:
-
         connection.close()
 
     if assignment is None:
         abort(404)
 
-    results = get_similarity_report(
-        assignment_id
-    )
+    results = get_similarity_report(assignment_id)
 
-    report_run = get_similarity_report_run(
-        assignment_id
-    )
+    report_run = get_similarity_report_run(assignment_id)
 
     submissions = get_submissions_for_assignment(
         assignment_id
@@ -1229,17 +1049,14 @@ def similarity_report(assignment_id):
 
 # ==========================================
 # DOWNLOAD SUBMISSION
+# FACULTY ONLY
 # ==========================================
 
-@app.route(
-    "/download-submission/<int:submission_id>"
-)
+@app.route("/download-submission/<int:submission_id>")
 @teacher_required
 def download_submission(submission_id):
 
-    submission = get_submission_by_id(
-        submission_id
-    )
+    submission = get_submission_by_id(submission_id)
 
     if submission is None:
         abort(404)
@@ -1279,9 +1096,7 @@ def logout():
         "success"
     )
 
-    return redirect(
-        url_for("home")
-    )
+    return redirect(url_for("home"))
 
 
 # ==========================================
@@ -1297,14 +1112,9 @@ def file_too_large(error):
     )
 
     if session.get("role") == "student":
+        return redirect(url_for("submit_assignment"))
 
-        return redirect(
-            url_for("submit_assignment")
-        )
-
-    return redirect(
-        url_for("home")
-    )
+    return redirect(url_for("home"))
 
 
 # ==========================================
@@ -1312,5 +1122,4 @@ def file_too_large(error):
 # ==========================================
 
 if __name__ == "__main__":
-
     app.run(debug=True)

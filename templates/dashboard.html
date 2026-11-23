@@ -4,62 +4,346 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Document Detector Dashboard</title>
+    <title>Faculty Dashboard | Smart Document Detector</title>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        .teacher {
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background: #f4f6fb;
+            color: #1e293b;
+        }
+
+        .topbar {
+            height: 75px;
+            background: #ffffff;
+            border-bottom: 1px solid #e5eaf2;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 35px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            width: 43px;
+            height: 43px;
+            background: linear-gradient(135deg, #2563eb, #0f3c91);
+            color: white;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            font-weight: 800;
+            font-size: 17px;
+        }
+
+        .brand h2 {
+            font-size: 15px;
+            color: #142b50;
+            letter-spacing: .4px;
+        }
+
+        .brand p {
+            color: #8491a5;
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+        .header-right {
             display: flex;
             align-items: center;
             gap: 18px;
         }
 
-        .logout-btn {
-            background: #ffffff;
-            color: #173b72;
-            padding: 10px 18px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: bold;
+        .datetime {
+            background: #f1f5fb;
+            padding: 10px 14px;
+            border-radius: 9px;
+            font-size: 12px;
+            color: #425575;
         }
 
-        .logout-btn:hover {
-            background: #e8eef8;
+        .faculty-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #254c86;
         }
 
-        .similarity-btn {
-            background: #1769d2;
-            color: white;
-            border: none;
-            padding: 9px 13px;
-            border-radius: 5px;
+        .logout {
+            background: #fff0f0;
+            color: #d14343;
+            padding: 10px 15px;
+            border-radius: 8px;
             text-decoration: none;
             font-size: 12px;
-            cursor: pointer;
-            font-weight: bold;
-            display: inline-block;
-            margin: 3px;
+            font-weight: 700;
         }
 
-        .similarity-btn:hover {
-            background: #104d9e;
+        .layout {
+            display: flex;
+            min-height: calc(100vh - 75px);
         }
 
-        .report-btn {
-            background: #198754;
-            color: white;
-            padding: 9px 13px;
-            border-radius: 5px;
+        .sidebar {
+            width: 245px;
+            background: #102b52;
+            padding: 25px 15px;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .side-heading {
+            color: #8fa8ca;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.3px;
+            padding: 8px 13px 15px;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 14px 13px;
+            margin-bottom: 7px;
+            color: #cbd9ed;
+            border-radius: 9px;
             text-decoration: none;
             font-size: 12px;
-            display: inline-block;
-            margin: 3px;
-            font-weight: bold;
+            font-weight: 600;
+            transition: .2s;
         }
 
-        .report-btn:hover {
-            background: #12643e;
+        .sidebar a:hover,
+        .sidebar a.active {
+            background: #24569a;
+            color: #ffffff;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            border-top: 1px solid #345174;
+            padding: 18px 10px 5px;
+            color: #a9bfdc;
+        }
+
+        .sidebar-footer h3 {
+            font-size: 10px;
+            letter-spacing: 1px;
+        }
+
+        .sidebar-footer p {
+            font-size: 10px;
+            margin-top: 7px;
+        }
+
+        .content {
+            flex: 1;
+            min-width: 0;
+            padding: 30px;
+            max-width: 1600px;
+        }
+
+        .page-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .page-heading h1 {
+            font-size: 24px;
+            color: #172e52;
+            margin-bottom: 7px;
+        }
+
+        .page-heading p {
+            font-size: 13px;
+            color: #8290a5;
+        }
+
+        .status {
+            background: #e7f8ef;
+            color: #16834a;
+            padding: 9px 13px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 17px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid #e8edf5;
+            border-radius: 14px;
+            padding: 21px;
+            box-shadow: 0 4px 15px #1b355b08;
+        }
+
+        .stat-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 17px;
+        }
+
+        .stat-icon {
+            width: 39px;
+            height: 39px;
+            display: grid;
+            place-items: center;
+            border-radius: 11px;
+            font-size: 19px;
+        }
+
+        .icon-blue { background: #e9f1ff; }
+        .icon-green { background: #e7f8ef; }
+        .icon-purple { background: #f1eaff; }
+        .icon-orange { background: #fff2e5; }
+
+        .stat-card h2 {
+            font-size: 29px;
+            color: #1e3a65;
+            margin-bottom: 6px;
+        }
+
+        .stat-card p {
+            color: #8290a5;
+            font-size: 12px;
+        }
+
+        .semester-panel {
+            background: white;
+            border: 1px solid #e8edf5;
+            border-radius: 13px;
+            padding: 19px 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .semester-panel h3 {
+            font-size: 14px;
+            color: #263e61;
+        }
+
+        .semester-panel p {
+            color: #8a97a9;
+            font-size: 11px;
+            margin-top: 5px;
+        }
+
+        .semester-panel select {
+            min-width: 220px;
+            padding: 11px 13px;
+            border: 1px solid #dce4ef;
+            border-radius: 8px;
+            background: #fff;
+            color: #263e61;
+            font-size: 12px;
+            outline: none;
+        }
+
+        .section-heading {
+            font-size: 16px;
+            color: #203957;
+            margin-bottom: 15px;
+        }
+
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .quick-card {
+            display: block;
+            text-decoration: none;
+            background: white;
+            border: 1px solid #e8edf5;
+            border-radius: 13px;
+            padding: 19px;
+            color: #263e61;
+            transition: .2s;
+        }
+
+        .quick-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px #1b355b12;
+        }
+
+        .quick-icon {
+            width: 40px;
+            height: 40px;
+            display: grid;
+            place-items: center;
+            border-radius: 10px;
+            background: #eaf1ff;
+            color: #2463c7;
+            font-size: 20px;
+            margin-bottom: 13px;
+        }
+
+        .quick-card h3 {
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        .quick-card p {
+            font-size: 10px;
+            color: #8996a8;
+        }
+
+        .panel {
+            background: white;
+            border: 1px solid #e8edf5;
+            border-radius: 14px;
+            padding: 22px;
+            margin-bottom: 22px;
+            box-shadow: 0 4px 15px #1b355b08;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            gap: 12px;
+        }
+
+        .panel-header h2 {
+            color: #203957;
+            font-size: 15px;
+        }
+
+        .panel-header span {
+            font-size: 11px;
+            color: #8794a7;
         }
 
         .table-container {
@@ -67,21 +351,158 @@
             overflow-x: auto;
         }
 
-        .similarity-note {
-            margin-top: 12px;
-            color: #666;
-            font-size: 13px;
-            line-height: 1.6;
+        table {
+            width: 100%;
+            min-width: 720px;
+            border-collapse: collapse;
         }
 
-        .analysis-circle {
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        th {
+            background: #f5f8fd;
+            color: #65758e;
+            text-align: left;
+            padding: 14px 12px;
+            font-size: 10px;
+            letter-spacing: .5px;
+            text-transform: uppercase;
         }
 
-        .report-panel p {
+        td {
+            padding: 15px 12px;
+            border-bottom: 1px solid #edf0f5;
+            font-size: 12px;
+            color: #485b75;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .similarity-btn,
+        .report-btn {
+            display: inline-block;
+            padding: 8px 10px;
+            border: none;
+            border-radius: 7px;
+            text-decoration: none;
+            font-size: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            margin: 2px;
+        }
+
+        .similarity-btn {
+            background: #eaf1ff;
+            color: #245bb0;
+        }
+
+        .report-btn {
+            background: #e7f8ef;
+            color: #16834a;
+        }
+
+        .empty {
+            text-align: center;
+            color: #8996a8;
+            padding: 30px;
+        }
+
+        .message {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 12px;
+        }
+
+        .message.success {
+            background: #e7f8ef;
+            color: #16834a;
+        }
+
+        .message.error {
+            background: #fff0f0;
+            color: #c03939;
+        }
+
+        .analysis-note {
+            color: #8290a5;
+            font-size: 12px;
             line-height: 1.7;
+        }
+
+        @media(max-width: 1100px) {
+            .stats,
+            .quick-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media(max-width: 750px) {
+            .topbar {
+                height: auto;
+                padding: 15px;
+                flex-wrap: wrap;
+                gap: 13px;
+            }
+
+            .header-right {
+                flex-wrap: wrap;
+                gap: 9px;
+            }
+
+            .layout {
+                display: block;
+            }
+
+            .sidebar {
+                width: 100%;
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 5px;
+            }
+
+            .side-heading,
+            .sidebar-footer {
+                display: none;
+            }
+
+            .content {
+                padding: 17px;
+            }
+
+            .page-heading {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .stat-card {
+                padding: 15px;
+            }
+
+            .quick-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .semester-panel {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .semester-panel select {
+                width: 100%;
+            }
+        }
+
+        @media(max-width: 380px) {
+            .stats,
+            .quick-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -93,15 +514,14 @@
         <div class="logo">SD</div>
         <div>
             <h2>SMART DOCUMENT DETECTOR</h2>
-            <p>Graph Theory & Discrete Optimization</p>
+            <p>Academic Management System</p>
         </div>
     </div>
 
-    <div class="teacher">
-        <span>Teacher Portal</span>
-        <a href="{{ url_for('logout') }}" class="logout-btn">
-            Logout
-        </a>
+    <div class="header-right">
+        <span class="datetime" id="liveDateTime">Loading...</span>
+        <span class="faculty-label">Faculty Portal</span>
+        <a href="{{ url_for('logout') }}" class="logout">Logout</a>
     </div>
 </header>
 
@@ -109,50 +529,49 @@
 
     <aside class="sidebar">
 
+        <div class="side-heading">MAIN MENU</div>
+
         <a class="active" href="{{ url_for('teacher_dashboard') }}">
-            ▦ DASHBOARD
+            ▦ &nbsp; Dashboard
         </a>
 
         <a href="{{ url_for('create_assignment') }}">
-            ＋ CREATE ASSIGNMENT
+            ＋ &nbsp; Create Assignment
         </a>
 
         <a href="#assignments">
-            ▤ MANAGE ASSIGNMENTS
+            ▤ &nbsp; Manage Assignments
         </a>
 
-        <a href="{{ url_for('teacher_submissions') }}">
-            ▣ SUBMISSIONS
+        <a href="{{ url_for('students') }}">
+            ♙ &nbsp; Students
+        </a>
+
+        <a href="{{ url_for('teacher_submissions', semester=selected_semester) }}">
+            ▣ &nbsp; Submissions
         </a>
 
         <a href="#reports">
-            ▥ SIMILARITY REPORTS
-        </a>
-
-        <a href="#reports">
-            ⌘ GRAPH VISUALIZATION
-        </a>
-
-        <a href="#system">
-            ⚙ SETTINGS
+            ▥ &nbsp; Similarity Reports
         </a>
 
         <div class="sidebar-footer">
-            <h3>DOCUMENT DETECTOR</h3>
-            <p>Smart Analysis System</p>
+            <h3>SMART DOCUMENT DETECTOR</h3>
+            <p>Faculty Management Portal</p>
         </div>
 
     </aside>
 
     <main class="content">
 
-        <section class="welcome">
+        <div class="page-heading">
             <div>
-                <h1>Welcome to Dashboard!</h1>
-                <p>Monitor assignments and document similarity.</p>
+                <h1>Faculty Dashboard</h1>
+                <p>Overview of academic activities and assignment management.</p>
             </div>
-            <div class="welcome-icon">🎓</div>
-        </section>
+
+            <span class="status">● System Active</span>
+        </div>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% for category, message in messages %}
@@ -162,121 +581,148 @@
             {% endfor %}
         {% endwith %}
 
-        <!-- DASHBOARD STATISTICS -->
+        <!-- Statistics -->
 
         <section class="stats">
 
-            <div class="stat-card blue">
+            <div class="stat-card">
+                <div class="stat-top">
+                    <span class="stat-icon icon-blue">▤</span>
+                </div>
                 <h2>{{ data.total_assignments }}</h2>
                 <p>Total Assignments</p>
             </div>
 
-            <div class="stat-card green">
+            <div class="stat-card">
+                <div class="stat-top">
+                    <span class="stat-icon icon-green">♙</span>
+                </div>
                 <h2>{{ data.total_students }}</h2>
-                <p>Total Students</p>
+                <p>Registered Students</p>
             </div>
 
-            <div class="stat-card purple">
+            <div class="stat-card">
+                <div class="stat-top">
+                    <span class="stat-icon icon-purple">▣</span>
+                </div>
                 <h2>{{ data.total_submissions }}</h2>
-                <p>Total Submissions</p>
+                <p>PDF Submissions</p>
             </div>
 
-            <div class="stat-card red">
-                <h2>--</h2>
-                <p>Similarity Alerts</p>
+            <div class="stat-card">
+                <div class="stat-top">
+                    <span class="stat-icon icon-orange">◈</span>
+                </div>
+                <h2>{{ data.total_assignments }}</h2>
+                <p>Assignments in View</p>
             </div>
 
         </section>
 
-        <!-- MIDDLE SECTION -->
+        <!-- Semester Filter -->
 
-        <section class="middle-grid">
+        <form class="semester-panel"
+              method="GET"
+              action="{{ url_for('teacher_dashboard') }}">
 
-            <div class="panel">
-                <h2>📊 Assignment Overview</h2>
-
-                <div class="overview">
-                    <h3>{{ data.total_assignments }}</h3>
-                    <p>Assignments Created</p>
-
-                    <a href="{{ url_for('create_assignment') }}"
-                       class="action blue-btn">
-                        + Create New Assignment
-                    </a>
-                </div>
+            <div>
+                <h3>Academic Semester Filter</h3>
+                <p>Choose a semester to view its academic records.</p>
             </div>
 
-            <div class="panel">
-                <h2>🎯 Similarity Analysis</h2>
+            <select name="semester"
+                    onchange="this.form.submit()">
 
-                <div class="analysis">
-                    <div class="analysis-circle">PDF</div>
-                    <p>Document comparison system</p>
-                    <small>Compare submitted PDFs for the same assignment.</small>
-                </div>
+                <option value="all"
+                    {% if selected_semester == 'all' %}selected{% endif %}>
+                    All Semesters
+                </option>
 
-                <p class="similarity-note">
-                    Similarity results are visible only to the teacher.
-                </p>
-            </div>
+                {% for n in range(1, 9) %}
+                    <option value="{{ n }}"
+                        {% if selected_semester == n|string %}selected{% endif %}>
+                        {{ n }}{% if n == 1 %}st{% elif n == 2 %}nd{% elif n == 3 %}rd{% else %}th{% endif %} Semester
+                    </option>
+                {% endfor %}
 
-            <div class="panel quick">
-                <h2>⚡ Quick Actions</h2>
+            </select>
 
-                <a href="{{ url_for('create_assignment') }}"
-                   class="action blue-btn">
-                    Create Assignment
-                </a>
+        </form>
 
-                <a href="#assignments"
-                   class="action green-btn">
-                    View Assignments
-                </a>
+        <!-- Quick Access -->
 
-                <a href="{{ url_for('teacher_submissions') }}"
-                   class="action orange-btn">
-                    View Student Submissions
-                </a>
+        <h2 class="section-heading">Quick Access</h2>
 
-                <a href="#reports"
-                   class="action orange-btn">
-                    View Similarity Reports
-                </a>
-            </div>
+        <section class="quick-grid">
+
+            <a href="{{ url_for('create_assignment') }}" class="quick-card">
+                <div class="quick-icon">＋</div>
+                <h3>Create Assignment</h3>
+                <p>Publish a new assignment</p>
+            </a>
+
+            <a href="#assignments" class="quick-card">
+                <div class="quick-icon">▤</div>
+                <h3>Manage Assignments</h3>
+                <p>View available assignments</p>
+            </a>
+
+            <a href="{{ url_for('teacher_submissions', semester=selected_semester) }}"
+               class="quick-card">
+                <div class="quick-icon">▣</div>
+                <h3>Student Submissions</h3>
+                <p>Review submitted PDF files</p>
+            </a>
+
+            <a href="#reports" class="quick-card">
+                <div class="quick-icon">▥</div>
+                <h3>Similarity Analysis</h3>
+                <p>Review document comparisons</p>
+            </a>
 
         </section>
 
-        <!-- ASSIGNMENT TABLE -->
+        <!-- Assignments Table -->
 
-        <section class="bottom-grid">
+        <section class="panel" id="assignments">
 
-            <div class="panel" id="assignments">
+            <div class="panel-header">
+                <h2>Recent Assignments</h2>
+                <span>Academic Records</span>
+            </div>
 
-                <h2>▤ Recent Assignments</h2>
+            <div class="table-container">
 
-                <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Assignment Name</th>
+                            <th>Semester</th>
+                            <th>Maximum Pages</th>
+                            <th>Threshold</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
 
-                    <table>
-                        <thead>
+                    <tbody>
+
+                        {% for assignment in data.recent_assignments %}
+
                             <tr>
-                                <th>Assignment ID</th>
-                                <th>Assignment Name</th>
-                                <th>Maximum Pages</th>
-                                <th>Threshold</th>
-                                <th>Similarity Actions</th>
-                            </tr>
-                        </thead>
+                                <td>#{{ assignment.id }}</td>
 
-                        <tbody>
+                                <td>
+                                    <strong>{{ assignment.title }}</strong>
+                                </td>
 
-                            {% for assignment in data.recent_assignments %}
+                                <td>
+                                    {{ assignment.semester or 'N/A' }}
+                                </td>
 
-                            <tr>
-                                <td>{{ assignment.id }}</td>
-
-                                <td>{{ assignment.title }}</td>
-
-                                <td>{{ assignment.max_pages }}</td>
+                                <td>
+                                    {{ assignment.max_pages }}
+                                </td>
 
                                 <td>
                                     {{ assignment.similarity_threshold }}%
@@ -286,84 +732,54 @@
 
                                     <form method="POST"
                                           action="{{ url_for('check_similarity', assignment_id=assignment.id) }}"
-                                          style="display:inline;">
+                                          style="display:inline">
 
-                                        <button type="submit"
-                                                class="similarity-btn">
+                                        <button class="similarity-btn"
+                                                type="submit">
                                             Check Similarity
                                         </button>
 
                                     </form>
 
-                                    <a href="{{ url_for('similarity_report', assignment_id=assignment.id) }}"
-                                       class="report-btn">
+                                    <a class="report-btn"
+                                       href="{{ url_for('similarity_report', assignment_id=assignment.id) }}">
                                         View Report
                                     </a>
 
                                 </td>
                             </tr>
 
-                            {% else %}
+                        {% else %}
 
                             <tr>
-                                <td colspan="5" class="empty">
-                                    No assignments created yet.
+                                <td colspan="6" class="empty">
+                                    No assignments found for this semester.
                                 </td>
                             </tr>
 
-                            {% endfor %}
+                        {% endfor %}
 
-                        </tbody>
-                    </table>
-
-                </div>
-
-            </div>
-
-            <!-- SYSTEM INFORMATION -->
-
-            <div class="panel" id="system">
-
-                <h2>⚙ System Information</h2>
-
-                <div class="info">
-                    <p>Backend <b>Python Flask</b></p>
-                    <p>Database <b>SQLite</b></p>
-                    <p>Frontend <b>HTML & CSS</b></p>
-                    <p>PDF Library <b>PyPDF</b></p>
-                    <p>Similarity <b>SequenceMatcher</b></p>
-                    <p>Maximum Upload <b>50 MB</b></p>
-                </div>
+                    </tbody>
+                </table>
 
             </div>
 
         </section>
 
-        <!-- SIMILARITY REPORT SECTION -->
+        <!-- Similarity Section -->
 
-        <section class="panel report-panel" id="reports">
+        <section class="panel" id="reports">
 
-            <h2>📈 Similarity Analysis Reports</h2>
+            <div class="panel-header">
+                <h2>Document Similarity Analysis</h2>
+                <span>PDF Comparison</span>
+            </div>
 
-            <p>
-                Select an assignment and click
-                <b>Check Similarity</b> to compare its submitted PDFs.
-            </p>
-
-            <p>
-                The system compares each readable PDF with the other
-                submitted PDFs belonging to the same assignment.
-            </p>
-
-            <p class="similarity-note">
-                Automatic checking is performed when the teacher opens
-                this dashboard after an assignment's end date.
-                Manual checking is also available at any time.
-            </p>
-
-            <p class="similarity-note">
-                Similarity percentage indicates textual overlap.
-                It is not, by itself, proof of plagiarism.
+            <p class="analysis-note">
+                The system compares submitted PDF documents and calculates
+                textual similarity between student submissions for the same
+                assignment. Similarity scores are indicators for faculty
+                review and are not, by themselves, proof of plagiarism.
             </p>
 
         </section>
@@ -371,6 +787,31 @@
     </main>
 
 </div>
+
+<script>
+    function updateClock() {
+        const now = new Date();
+
+        const date = now.toLocaleDateString('en-IN', {
+            weekday: 'short',
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+        });
+
+        const time = now.toLocaleTimeString('en-IN', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+
+        document.getElementById('liveDateTime').textContent =
+            date + ' | ' + time;
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
+</script>
 
 </body>
 </html>
