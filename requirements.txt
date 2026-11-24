@@ -4,3 +4,12 @@ pypdf
 gunicorn
 psycopg[binary]
 supabase
+Flask
+pdfplumber
+Werkzeug
+Flask
+Werkzeug
+pdfplumber
+scikit-learn
+numpy
+gunicorn

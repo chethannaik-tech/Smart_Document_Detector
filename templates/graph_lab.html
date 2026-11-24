@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Graph Analysis</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f1f5f9;
+            padding: 25px;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        td, th {
+            border-bottom: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h1>Graph Analysis</h1>
+    <a href="{{ url_for('teacher_dashboard') }}">Dashboard</a>
+
+    <form method="GET">
+        <label>Semester</label>
+        <select name="semester" onchange="this.form.submit()">
+            <option value="all"
+            {% if selected_semester == 'all' %}selected{% endif %}>
+                All Semesters
+            </option>
+            {% for n in range(1,9) %}
+            <option value="{{ n }}"
+            {% if selected_semester == n|string %}selected{% endif %}>
+                Semester {{ n }}
+            </option>
+            {% endfor %}
+        </select>
+    </form>
+</div>
+
+<div class="card">
+    <h2>Similarity Network Data</h2>
+
+    <table>
+        <tr>
+            <th>Student 1</th>
+            <th>Student 2</th>
+            <th>Semester</th>
+            <th>Similarity</th>
+        </tr>
+
+        {% for row in data %}
+        <tr>
+            <td>{{ row.student1 }}</td>
+            <td>{{ row.student2 }}</td>
+            <td>{{ row.semester }}</td>
+            <td>{{ row.similarity_percent }}%</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4">No graph data available.</td></tr>
+        {% endfor %}
+    </table>
+</div>
+
+</body>
+</html>
