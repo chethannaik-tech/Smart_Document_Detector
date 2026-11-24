@@ -1,6 +1,5 @@
 
 import os
-import hashlib
 from datetime import datetime
 
 import pdfplumber
@@ -20,15 +19,13 @@ from similarity_engine import compare_documents
 
 app = Flask(__name__)
 
-# IMPORTANT: Initialize database when Gunicorn imports this file.
-# This ensures tables are created on Render as well as locally.
-init_db()
-
 app.secret_key = os.environ.get(
-    "SECRET_KEY", "change-this-secret-key-before-deployment"
+    "SECRET_KEY",
+    "change-this-secret-key-before-deployment"
 )
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
@@ -36,6 +33,9 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024
 
 ALLOWED_EXTENSIONS = {"pdf"}
+
+# Initialize database when Gunicorn imports app.py.
+init_db()
 
 
 # ==========================================
@@ -68,7 +68,6 @@ def get_pdf_page_count(filepath):
     try:
         with pdfplumber.open(filepath) as pdf:
             return len(pdf.pages)
-
     except Exception:
         return 0
 
@@ -111,7 +110,6 @@ def generate_similarity_report_for_assignment(assignment_id):
     results = []
 
     for i in range(len(documents)):
-
         for j in range(i + 1, len(documents)):
 
             analysis = compare_documents(
@@ -135,20 +133,16 @@ def generate_similarity_report_for_assignment(assignment_id):
 # ==========================================
 
 def teacher_required():
-
     if session.get("role") != "teacher":
         flash("Teacher login required.")
         return False
-
     return True
 
 
 def student_required():
-
     if session.get("role") != "student":
         flash("Student login required.")
         return False
-
     return True
 
 
@@ -169,7 +163,6 @@ def home():
         return redirect(url_for("student_dashboard"))
 
     session.clear()
-
     return redirect(url_for("login"))
 
 
@@ -220,7 +213,6 @@ def register():
     if request.method == "POST":
 
         name = request.form.get("name", "").strip()
-
         register_number = request.form.get(
             "register_number", ""
         ).strip()
@@ -234,24 +226,20 @@ def register():
             name, register_number, email,
             department, semester, password
         ]):
-
             flash("Please fill in all fields.")
             return redirect(url_for("register"))
 
         try:
-
             semester = int(semester)
 
             if semester not in range(1, 9):
                 raise ValueError
 
         except ValueError:
-
             flash("Select a valid semester.")
             return redirect(url_for("register"))
 
         if len(password) < 6:
-
             flash("Password must contain at least 6 characters.")
             return redirect(url_for("register"))
 
@@ -263,7 +251,6 @@ def register():
             semester,
             password
         ):
-
             flash("Registration successful. Please login.")
             return redirect(url_for("login"))
 
@@ -285,9 +272,7 @@ def teacher_dashboard():
     selected_semester = request.args.get("semester", "all")
 
     if selected_semester != "all":
-
         try:
-
             number = int(selected_semester)
 
             if number not in range(1, 9):
@@ -342,7 +327,6 @@ def create_assignment():
         reference_filename = None
 
         try:
-
             semester = int(semester)
             max_pages = int(max_pages)
             threshold = float(threshold)
@@ -370,14 +354,12 @@ def create_assignment():
                 raise ValueError
 
         except ValueError:
-
             flash("Please enter valid assignment details.")
             return redirect(url_for("create_assignment"))
 
         if reference and reference.filename:
 
             if not allowed_file(reference.filename):
-
                 flash("Reference file must be a PDF.")
                 return redirect(url_for("create_assignment"))
 
@@ -433,16 +415,12 @@ def student_dashboard():
     student = get_student_by_user_id(session["user_id"])
 
     if not student:
-
         session.clear()
         flash("Student profile not found.")
-
         return redirect(url_for("login"))
 
     assignments = get_student_semester_assignments(student["semester"])
-
     submissions = get_student_submissions_for_dashboard(student["id"])
-
     notifications = get_notifications(session["user_id"])
 
     submitted_ids = {
@@ -478,12 +456,10 @@ def submit_assignment(assignment_id):
     assignment = get_assignment_by_id(assignment_id)
 
     if not student or not assignment:
-
         flash("Student or assignment not found.")
         return redirect(url_for("student_dashboard"))
 
     if student["semester"] != assignment["semester"]:
-
         flash("You cannot submit another semester's assignment.")
         return redirect(url_for("student_dashboard"))
 
@@ -496,25 +472,20 @@ def submit_assignment(assignment_id):
         file = request.files.get("file")
 
         if not file or not file.filename:
-
             flash("Please select a PDF file.")
-
             return redirect(url_for(
                 "submit_assignment",
                 assignment_id=assignment_id
             ))
 
         if not allowed_file(file.filename):
-
             flash("Only PDF files are accepted.")
-
             return redirect(url_for(
                 "submit_assignment",
                 assignment_id=assignment_id
             ))
 
         if existing:
-
             flash("You have already submitted this assignment.")
             return redirect(url_for("student_dashboard"))
 
@@ -526,29 +497,23 @@ def submit_assignment(assignment_id):
         )
 
         filepath = os.path.join(UPLOAD_FOLDER, unique_name)
-
         file.save(filepath)
 
         page_count = get_pdf_page_count(filepath)
 
         if page_count == 0:
-
             os.remove(filepath)
             flash("Unable to read this PDF.")
-
             return redirect(url_for(
                 "submit_assignment",
                 assignment_id=assignment_id
             ))
 
         if page_count > assignment["max_pages"]:
-
             os.remove(filepath)
-
             flash(
                 f"PDF exceeds the {assignment['max_pages']} page limit."
             )
-
             return redirect(url_for(
                 "submit_assignment",
                 assignment_id=assignment_id
@@ -557,10 +522,8 @@ def submit_assignment(assignment_id):
         extracted_text = extract_pdf_text(filepath)
 
         if not extracted_text.strip():
-
             os.remove(filepath)
             flash("No readable text found in this PDF.")
-
             return redirect(url_for(
                 "submit_assignment",
                 assignment_id=assignment_id
@@ -574,7 +537,6 @@ def submit_assignment(assignment_id):
         )
 
         flash("Assignment submitted successfully.")
-
         return redirect(url_for("student_dashboard"))
 
     return render_template(
@@ -597,7 +559,6 @@ def evaluate_submission(submission_id):
     connection = get_connection()
 
     try:
-
         row = connection.execute("""
             SELECT
                 sub.*,
@@ -620,16 +581,13 @@ def evaluate_submission(submission_id):
         connection.close()
 
     if not submission:
-
         flash("Submission not found.")
         return redirect(url_for("teacher_dashboard"))
 
     if request.method == "POST":
 
         try:
-
             marks = float(request.form.get("marks", ""))
-
             feedback = request.form.get("feedback", "").strip()
 
             maximum = float(
@@ -639,19 +597,12 @@ def evaluate_submission(submission_id):
             if marks < 0 or marks > maximum:
                 raise ValueError
 
-            save_marks(
-                submission_id,
-                marks,
-                maximum,
-                feedback
-            )
+            save_marks(submission_id, marks, maximum, feedback)
 
             flash("Marks and feedback saved.")
-
             return redirect(url_for("teacher_dashboard"))
 
         except ValueError:
-
             flash("Enter valid marks within the maximum marks.")
 
     return render_template(
@@ -676,7 +627,6 @@ def download_reference(assignment_id):
         abort(404)
 
     if session.get("role") == "student":
-
         student = get_student_by_user_id(session["user_id"])
 
         if not student or student["semester"] != assignment["semester"]:
@@ -702,7 +652,6 @@ def check_similarity(assignment_id):
     assignment = get_assignment_by_id(assignment_id)
 
     if not assignment:
-
         flash("Assignment not found.")
         return redirect(url_for("teacher_dashboard"))
 
@@ -728,7 +677,6 @@ def similarity_report(assignment_id):
     assignment = get_assignment_by_id(assignment_id)
 
     if not assignment:
-
         flash("Assignment not found.")
         return redirect(url_for("teacher_dashboard"))
 
@@ -754,9 +702,7 @@ def graph_lab():
     semester = request.args.get("semester", "all")
 
     if semester != "all":
-
         try:
-
             number = int(semester)
 
             if number not in range(1, 9):
@@ -817,9 +763,7 @@ def download_file(filename):
 
 @app.route("/logout")
 def logout():
-
     session.clear()
-
     return redirect(url_for("login"))
 
 
@@ -843,5 +787,4 @@ def file_too_large(error):
 # ==========================================
 
 if __name__ == "__main__":
-
     app.run(debug=True)
