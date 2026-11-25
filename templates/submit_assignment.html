@@ -5,18 +5,72 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Submit Assignment</title>
+
     <style>
-        body { font-family: Arial; background: #f1f5f9; padding: 25px; }
-        .card { max-width: 600px; margin: auto; background: white; padding: 25px; border-radius: 12px; }
-        input, button { width: 100%; padding: 12px; margin: 12px 0; box-sizing: border-box; }
-        button { background: #2563eb; color: white; border: 0; border-radius: 6px; cursor: pointer; }
+        body {
+            font-family: Arial;
+            background: #f1f5f9;
+            padding: 25px;
+            color: #1e293b;
+        }
+
+        .card {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px #0001;
+        }
+
+        input, button {
+            width: 100%;
+            padding: 12px;
+            margin: 12px 0;
+            box-sizing: border-box;
+        }
+
+        button {
+            background: #2563eb;
+            color: white;
+            border: 0;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .success {
+            background: #dcfce7;
+            color: #166534;
+            padding: 12px;
+            border-radius: 6px;
+        }
+
+        .warning {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 12px;
+            border-radius: 6px;
+        }
+
+        .back {
+            display: inline-block;
+            margin-top: 15px;
+            color: #2563eb;
+            text-decoration: none;
+        }
     </style>
 </head>
+
 <body>
+
 <div class="card">
+
     <h2>Submit Assignment</h2>
+
     <h3>{{ assignment.title }}</h3>
+
     <p>{{ assignment.description }}</p>
+
     <p>Subject: {{ assignment.subject or '-' }}</p>
     <p>Semester: {{ assignment.semester }}</p>
     <p>Deadline: {{ assignment.end_date }}</p>
@@ -29,16 +83,70 @@
     {% endwith %}
 
     {% if existing %}
-        <p>You have already submitted this assignment.</p>
+
+        <div class="success">
+            <strong>Previous Submission Found</strong>
+            <p>You have already submitted this assignment.</p>
+        </div>
+
+        {% if existing.resubmission_allowed %}
+
+            <div class="success">
+                <strong>Resubmission Permission Granted!</strong>
+                <p>Faculty has allowed you to submit this assignment again.</p>
+            </div>
+
+            <form method="POST" enctype="multipart/form-data">
+                <label>Select your new PDF:</label>
+
+                <input
+                    type="file"
+                    name="file"
+                    accept=".pdf"
+                    required
+                >
+
+                <button type="submit">Resubmit PDF</button>
+            </form>
+
+        {% else %}
+
+            <div class="warning">
+                <strong>Resubmission Not Allowed</strong>
+                <p>
+                    You cannot submit this assignment again right now.
+                    Please contact your Faculty.
+                </p>
+            </div>
+
+        {% endif %}
+
     {% else %}
+
+        <h3>Upload Your Assignment</h3>
+
         <form method="POST" enctype="multipart/form-data">
-            <label>Select your PDF</label>
-            <input type="file" name="file" accept=".pdf" required>
+
+            <label>Select your PDF:</label>
+
+            <input
+                type="file"
+                name="file"
+                accept=".pdf"
+                required
+            >
+
             <button type="submit">Submit PDF</button>
+
         </form>
+
     {% endif %}
 
-    <p><a href="{{ url_for('student_dashboard') }}">Back to Dashboard</a></p>
+    <a class="back" href="{{ url_for('student_dashboard') }}">
+        Back to Dashboard
+    </a>
+
 </div>
+
 </body>
 </html>

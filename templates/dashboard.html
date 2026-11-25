@@ -24,7 +24,13 @@
         .red { background: #dc2626; }
         select { padding: 10px; border-radius: 6px; }
         form.inline { display: inline; }
-        @media(max-width:600px) { header { padding: 18px; } .nav a { display: inline-block; margin: 7px; } }
+        .status { font-weight: bold; color: #15803d; }
+        .previous { color: #64748b; font-weight: bold; }
+        .permission-form { margin-top: 6px; }
+        @media(max-width:600px) {
+            header { padding: 18px; }
+            .nav a { display: inline-block; margin: 7px; }
+        }
     </style>
 </head>
 <body>
@@ -105,7 +111,9 @@
                         <button class="green" type="submit">Analyze</button>
                     </form>
                 </td>
-                <td><a class="btn" href="{{ url_for('similarity_report', assignment_id=a.id) }}">View Report</a></td>
+                <td>
+                    <a class="btn" href="{{ url_for('similarity_report', assignment_id=a.id) }}">View Report</a>
+                </td>
             </tr>
             {% else %}
             <tr><td colspan="7">No assignments found.</td></tr>
@@ -147,18 +155,44 @@
                 <th>Semester</th>
                 <th>File</th>
                 <th>Evaluation</th>
+                <th>Resubmission Permission</th>
             </tr>
+
             {% for s in submissions %}
             <tr>
                 <td>{{ s.name }}</td>
                 <td>{{ s.register_number }}</td>
                 <td>{{ s.assignment_title }}</td>
                 <td>{{ s.semester }}</td>
-                <td><a href="{{ url_for('download_file', filename=s.file_name) }}">Download PDF</a></td>
-                <td><a class="btn green" href="{{ url_for('evaluate_submission', submission_id=s.id) }}">Marks & Feedback</a></td>
+                <td>
+                    <a href="{{ url_for('download_file', filename=s.file_name) }}">Download PDF</a>
+                </td>
+                <td>
+                    <a class="btn green" href="{{ url_for('evaluate_submission', submission_id=s.id) }}">
+                        Marks & Feedback
+                    </a>
+                </td>
+                <td>
+                    {% if s.is_latest %}
+                        {% if s.resubmission_allowed %}
+                            <span class="status">Permission Granted</span>
+                            <form class="permission-form" method="POST"
+                                  action="{{ url_for('teacher_revoke_resubmission', submission_id=s.id) }}">
+                                <button class="red" type="submit">Revoke Permission</button>
+                            </form>
+                        {% else %}
+                            <form method="POST"
+                                  action="{{ url_for('teacher_allow_resubmission', submission_id=s.id) }}">
+                                <button class="green" type="submit">Allow Resubmission</button>
+                            </form>
+                        {% endif %}
+                    {% else %}
+                        <span class="previous">Previous Submission</span>
+                    {% endif %}
+                </td>
             </tr>
             {% else %}
-            <tr><td colspan="6">No submissions found.</td></tr>
+            <tr><td colspan="7">No submissions found.</td></tr>
             {% endfor %}
         </table>
     </div>
