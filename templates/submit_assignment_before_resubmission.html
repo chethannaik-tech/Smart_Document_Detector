@@ -1,0 +1,44 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Submit Assignment</title>
+    <style>
+        body { font-family: Arial; background: #f1f5f9; padding: 25px; }
+        .card { max-width: 600px; margin: auto; background: white; padding: 25px; border-radius: 12px; }
+        input, button { width: 100%; padding: 12px; margin: 12px 0; box-sizing: border-box; }
+        button { background: #2563eb; color: white; border: 0; border-radius: 6px; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h2>Submit Assignment</h2>
+    <h3>{{ assignment.title }}</h3>
+    <p>{{ assignment.description }}</p>
+    <p>Subject: {{ assignment.subject or '-' }}</p>
+    <p>Semester: {{ assignment.semester }}</p>
+    <p>Deadline: {{ assignment.end_date }}</p>
+    <p>Maximum PDF pages: {{ assignment.max_pages }}</p>
+
+    {% with messages = get_flashed_messages() %}
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    {% endwith %}
+
+    {% if existing %}
+        <p>You have already submitted this assignment.</p>
+    {% else %}
+        <form method="POST" enctype="multipart/form-data">
+            <label>Select your PDF</label>
+            <input type="file" name="file" accept=".pdf" required>
+            <button type="submit">Submit PDF</button>
+        </form>
+    {% endif %}
+
+    <p><a href="{{ url_for('student_dashboard') }}">Back to Dashboard</a></p>
+</div>
+</body>
+</html>

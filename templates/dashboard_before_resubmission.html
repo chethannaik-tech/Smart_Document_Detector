@@ -1,0 +1,168 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>University Portal - Teacher</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: Arial; background: #f1f5f9; margin: 0; color: #1e293b; }
+        header { background: #172554; color: white; padding: 22px 5%; }
+        header h1 { margin: 0 0 15px; }
+        .nav a { color: white; margin-right: 20px; text-decoration: none; }
+        .container { max-width: 1250px; margin: 25px auto; padding: 15px; }
+        .card { background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 3px 10px #0001; overflow-x: auto; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap: 15px; }
+        .stat { background: #eff6ff; padding: 18px; border-radius: 10px; }
+        .stat h2 { color: #1d4ed8; margin-bottom: 5px; }
+        table { width: 100%; border-collapse: collapse; min-width: 650px; }
+        th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; }
+        th { background: #e2e8f0; }
+        button, .btn { display: inline-block; background: #2563eb; color: white; padding: 9px 13px; border: 0; border-radius: 6px; text-decoration: none; cursor: pointer; }
+        .green { background: #15803d; }
+        .red { background: #dc2626; }
+        select { padding: 10px; border-radius: 6px; }
+        form.inline { display: inline; }
+        @media(max-width:600px) { header { padding: 18px; } .nav a { display: inline-block; margin: 7px; } }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>University Portal</h1>
+    <div class="nav">
+        <a href="{{ url_for('teacher_dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('create_assignment') }}">Create Assignment</a>
+        <a href="{{ url_for('graph_lab') }}">Graph Analysis</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+</header>
+
+<div class="container">
+
+    {% with messages = get_flashed_messages() %}
+        {% for message in messages %}
+            <div class="card">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    <div class="stats">
+        <div class="stat">
+            <p>Total Students</p>
+            <h2>{{ stats.total_students }}</h2>
+        </div>
+        <div class="stat">
+            <p>Total Assignments</p>
+            <h2>{{ stats.total_assignments }}</h2>
+        </div>
+        <div class="stat">
+            <p>Total Submissions</p>
+            <h2>{{ stats.total_submissions }}</h2>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Semester Filter</h2>
+        <form method="GET">
+            <select name="semester" onchange="this.form.submit()">
+                <option value="all" {% if selected_semester == 'all' %}selected{% endif %}>All Semesters</option>
+                {% for n in range(1,9) %}
+                <option value="{{ n }}" {% if selected_semester == n|string %}selected{% endif %}>
+                    Semester {{ n }}
+                </option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>Assignment Management</h2>
+        <p><a class="btn green" href="{{ url_for('create_assignment') }}">+ Create Assignment</a></p>
+        <table>
+            <tr>
+                <th>Title</th>
+                <th>Subject</th>
+                <th>Semester</th>
+                <th>Deadline</th>
+                <th>Reference</th>
+                <th>Similarity</th>
+                <th>Report</th>
+            </tr>
+            {% for a in assignments %}
+            <tr>
+                <td>{{ a.title }}</td>
+                <td>{{ a.subject or '-' }}</td>
+                <td>{{ a.semester }}</td>
+                <td>{{ a.end_date or '-' }}</td>
+                <td>
+                    {% if a.reference_file %}
+                    <a href="{{ url_for('download_reference', assignment_id=a.id) }}">Download</a>
+                    {% else %}-{% endif %}
+                </td>
+                <td>
+                    <form class="inline" method="POST" action="{{ url_for('check_similarity', assignment_id=a.id) }}">
+                        <button class="green" type="submit">Analyze</button>
+                    </form>
+                </td>
+                <td><a class="btn" href="{{ url_for('similarity_report', assignment_id=a.id) }}">View Report</a></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7">No assignments found.</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>Student Management</h2>
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Register Number</th>
+                <th>Department</th>
+                <th>Semester</th>
+                <th>Email</th>
+            </tr>
+            {% for student in students %}
+            <tr>
+                <td>{{ student.name }}</td>
+                <td>{{ student.register_number }}</td>
+                <td>{{ student.department }}</td>
+                <td>{{ student.semester }}</td>
+                <td>{{ student.email }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5">No students found.</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>Assignment Submissions & Evaluation</h2>
+        <table>
+            <tr>
+                <th>Student</th>
+                <th>Register Number</th>
+                <th>Assignment</th>
+                <th>Semester</th>
+                <th>File</th>
+                <th>Evaluation</th>
+            </tr>
+            {% for s in submissions %}
+            <tr>
+                <td>{{ s.name }}</td>
+                <td>{{ s.register_number }}</td>
+                <td>{{ s.assignment_title }}</td>
+                <td>{{ s.semester }}</td>
+                <td><a href="{{ url_for('download_file', filename=s.file_name) }}">Download PDF</a></td>
+                <td><a class="btn green" href="{{ url_for('evaluate_submission', submission_id=s.id) }}">Marks & Feedback</a></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6">No submissions found.</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+
+</div>
+</body>
+</html>
